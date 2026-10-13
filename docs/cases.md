@@ -22,11 +22,11 @@ status, so two admins clicking at once cannot both win.
 | --- | --- | --- |
 | Approve with no active primary contact | `obbp_primary_contact_required`, rolled back | A company approved with nobody able to receive the portal login |
 | `rejected` / `suspended` with a blank reason | `obbp_note_required` | Silent suspensions nobody can explain later |
-| Contact email already has a WordPress user | The existing user is **reused** and granted `obbp_customer`, not duplicated | The same human ending up with two logins |
+| Primary contact has no linked WordPress user | `obbp_contact_login_required`, rolled back | A company approved with nobody able to log in |
+| Contact has a linked WordPress user | The existing user is **reused** and granted `obbp_customer`, never duplicated | The same human ending up with two logins |
 | That user is already linked to a different company | `obbp_user_already_linked`, rolled back | One portal login serving two competing companies |
-| Provisioning fails part-way | A user created during the attempt is deleted again in the same transaction | Orphaned WordPress users on every retry |
-| Two concurrent approvals | Second one re-checks against the locked row and returns `obbp_invalid_status` ("no longer allowed") | Double-provisioned users, two "approved" audit entries |
-| Commit fails after provisioning | Provisioned user deleted, error returned | Approved company whose owner cannot log in |
+| Two concurrent approvals | Second one re-checks against the locked row and returns `obbp_invalid_status` ("no longer allowed") | Two "approved" audit entries |
+| Commit fails during approval | Error returned; the role/meta grant runs after commit, so no user is left half-linked | Approved company whose owner cannot log in |
 | Portal access after suspension | `company_for_user()` requires `status = 'approved'` | A suspended company retaining portal access |
 
 ---
@@ -185,7 +185,6 @@ Notes and limits:
 | --- | --- |
 | Roles `obbp_manager` / `obbp_sales` / `obbp_customer` | Always removed |
 | `obbp_*` capabilities on `administrator` | Always removed |
-| *Delete data on uninstall* **off** | Tables, catalog posts, options, and portal logins are left intact |
-| *Delete data on uninstall* **on** | Tables dropped, `obbp_product` posts deleted, plugin-created users deleted |
-| A plugin-created user has authored other content | User is kept — only pure portal accounts are deleted |
+| *Delete data on uninstall* **off** | Tables, catalog posts, options, and plugin user meta are left intact |
+| *Delete data on uninstall* **on** | Tables dropped, `obbp_product` posts deleted, plugin user meta removed — WordPress users are never touched |
 | A drop or delete fails | Remaining cleanup is abandoned and options are preserved, rather than leaving a half-deleted install looking clean |

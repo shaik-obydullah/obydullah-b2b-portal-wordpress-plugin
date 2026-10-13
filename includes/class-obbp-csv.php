@@ -3,6 +3,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Direct DB access is intentional: these queries run against the plugin's own
+// obbp_* tables, all values are bound via $wpdb->prepare(), and hot paths are
+// served through the OBBP_Repository cache layer.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 final class OBBP_CSV
 {
     public function __construct(private array $notices = [])
@@ -14,7 +19,7 @@ final class OBBP_CSV
     public static function render_transfer_page()
     {
         ?>
-        <div class="wrap obbp-admin"><h1><?php esc_html_e('CSV Import and Export', 'obydullah-b2b-portal'); ?></h1><div class="obbp-panel"><h2><?php esc_html_e('Import', 'obydullah-b2b-portal'); ?></h2><form method="post" enctype="multipart/form-data" action="<?php echo esc_url(admin_url('admin-post.php?action=obbp_import')); ?>"><input type="hidden" name="obbp_do" value="import"><?php wp_nonce_field(OBBP_NONCE_ADMIN, 'obbp_nonce'); ?><p><label><?php esc_html_e('Data type', 'obydullah-b2b-portal'); ?><select name="entity" id="obbp-import-entity"><option value="companies"><?php esc_html_e('Companies', 'obydullah-b2b-portal'); ?></option><option value="catalog"><?php esc_html_e('Catalog', 'obydullah-b2b-portal'); ?></option><option value="price_list"><?php esc_html_e('Price list items', 'obydullah-b2b-portal'); ?></option><option value="price_lists"><?php esc_html_e('Price lists', 'obydullah-b2b-portal'); ?></option></select></label></p><p><label><?php esc_html_e('Price list ID', 'obydullah-b2b-portal'); ?><input type="number" name="price_list_id" min="1" value="0"></label></p><p><label><?php esc_html_e('CSV file', 'obydullah-b2b-portal'); ?><input type="file" name="import_file" accept=".csv,text/csv" required></label></p><p><label><input type="checkbox" name="apply_status" value="1"> <?php esc_html_e('Apply company status from the CSV. This runs each change through the approval workflow, so it can provision portal logins and send status emails.', 'obydullah-b2b-portal'); ?></label></p><p><button class="button button-primary"><?php esc_html_e('Import CSV', 'obydullah-b2b-portal'); ?></button></p><p class="description"><?php esc_html_e('Company headers: name,email,phone,website,tax_id,address_line1,address_line2,city,state,postcode,country,currency,payment_terms,price_list_id,status,status_note. Catalog headers: title,sku,description,unit,price,currency,availability,min_qty,qty_step,lead_time_days,tax_rate,is_service,portal_visible,post_status. Price-list headers: name,slug,description,currency,is_default,is_active,valid_from,valid_to. Price-item headers: sku,unit_price,min_qty,qty_step,lead_time_days,is_active,note.', 'obydullah-b2b-portal'); ?></p></form></div><div class="obbp-panel"><h2><?php esc_html_e('Export', 'obydullah-b2b-portal'); ?></h2><form method="post" action="<?php echo esc_url(admin_url('admin-post.php?action=obbp_export')); ?>"><input type="hidden" name="obbp_do" value="export"><?php wp_nonce_field(OBBP_NONCE_ADMIN, 'obbp_nonce'); ?><p><label><?php esc_html_e('Data type', 'obydullah-b2b-portal'); ?><select name="entity"><option value="companies"><?php esc_html_e('Companies', 'obydullah-b2b-portal'); ?></option><option value="catalog"><?php esc_html_e('Catalog', 'obydullah-b2b-portal'); ?></option><option value="price_lists"><?php esc_html_e('Price lists', 'obydullah-b2b-portal'); ?></option><option value="price_list_items"><?php esc_html_e('Price list items', 'obydullah-b2b-portal'); ?></option><option value="rfqs"><?php esc_html_e('RFQs', 'obydullah-b2b-portal'); ?></option><option value="quotes"><?php esc_html_e('Quote items', 'obydullah-b2b-portal'); ?></option><option value="purchase_orders"><?php esc_html_e('Purchase order items', 'obydullah-b2b-portal'); ?></option><option value="activity"><?php esc_html_e('Activity log', 'obydullah-b2b-portal'); ?></option></select></label></p><p><label><?php esc_html_e('Price list ID', 'obydullah-b2b-portal'); ?><input type="number" name="price_list_id" min="0" value="0"></label></p><button class="button button-primary"><?php esc_html_e('Download CSV', 'obydullah-b2b-portal'); ?></button></form></div></div>
+        <div class="wrap obbp-admin"><h1><?php esc_html_e('CSV Import and Export', 'obydullah-b2b-portal'); ?></h1><div class="obbp-panel"><h2><?php esc_html_e('Import', 'obydullah-b2b-portal'); ?></h2><form method="post" enctype="multipart/form-data" action="<?php echo esc_url(admin_url('admin-post.php?action=obbp_import')); ?>"><input type="hidden" name="obbp_do" value="import"><?php wp_nonce_field(OBBP_NONCE_ADMIN, 'obbp_nonce'); ?><p><label><?php esc_html_e('Data type', 'obydullah-b2b-portal'); ?><select name="entity" id="obbp-import-entity"><option value="companies"><?php esc_html_e('Companies', 'obydullah-b2b-portal'); ?></option><option value="catalog"><?php esc_html_e('Catalog', 'obydullah-b2b-portal'); ?></option><option value="price_list"><?php esc_html_e('Price list items', 'obydullah-b2b-portal'); ?></option><option value="price_lists"><?php esc_html_e('Price lists', 'obydullah-b2b-portal'); ?></option></select></label></p><p><label><?php esc_html_e('Price list ID', 'obydullah-b2b-portal'); ?><input type="number" name="price_list_id" min="1" value="0"></label></p><p><label><?php esc_html_e('CSV file', 'obydullah-b2b-portal'); ?><input type="file" name="import_file" accept=".csv,text/csv" required></label></p><p><label><input type="checkbox" name="apply_status" value="1"> <?php esc_html_e('Apply company status from the CSV. This runs each change through the approval workflow, so it can grant portal access to linked users and send status emails.', 'obydullah-b2b-portal'); ?></label></p><p><button class="button button-primary"><?php esc_html_e('Import CSV', 'obydullah-b2b-portal'); ?></button></p><p class="description"><?php esc_html_e('Company headers: name,email,phone,website,tax_id,address_line1,address_line2,city,state,postcode,country,currency,payment_terms,price_list_id,status,status_note. Catalog headers: title,sku,description,unit,price,currency,availability,min_qty,qty_step,lead_time_days,tax_rate,is_service,portal_visible,post_status. Price-list headers: name,slug,description,currency,is_default,is_active,valid_from,valid_to. Price-item headers: sku,unit_price,min_qty,qty_step,lead_time_days,is_active,note.', 'obydullah-b2b-portal'); ?></p></form></div><div class="obbp-panel"><h2><?php esc_html_e('Export', 'obydullah-b2b-portal'); ?></h2><form method="post" action="<?php echo esc_url(admin_url('admin-post.php?action=obbp_export')); ?>"><input type="hidden" name="obbp_do" value="export"><?php wp_nonce_field(OBBP_NONCE_ADMIN, 'obbp_nonce'); ?><p><label><?php esc_html_e('Data type', 'obydullah-b2b-portal'); ?><select name="entity"><option value="companies"><?php esc_html_e('Companies', 'obydullah-b2b-portal'); ?></option><option value="catalog"><?php esc_html_e('Catalog', 'obydullah-b2b-portal'); ?></option><option value="price_lists"><?php esc_html_e('Price lists', 'obydullah-b2b-portal'); ?></option><option value="price_list_items"><?php esc_html_e('Price list items', 'obydullah-b2b-portal'); ?></option><option value="rfqs"><?php esc_html_e('RFQs', 'obydullah-b2b-portal'); ?></option><option value="quotes"><?php esc_html_e('Quote items', 'obydullah-b2b-portal'); ?></option><option value="purchase_orders"><?php esc_html_e('Purchase order items', 'obydullah-b2b-portal'); ?></option><option value="activity"><?php esc_html_e('Activity log', 'obydullah-b2b-portal'); ?></option></select></label></p><p><label><?php esc_html_e('Price list ID', 'obydullah-b2b-portal'); ?><input type="number" name="price_list_id" min="0" value="0"></label></p><button class="button button-primary"><?php esc_html_e('Download CSV', 'obydullah-b2b-portal'); ?></button></form></div></div>
         <?php
     }
 
@@ -267,6 +272,7 @@ final class OBBP_CSV
             }
             $company_id = (int) $existing['id'];
             $current_status = (string) $existing['status'];
+            OBBP_Repository::flush_company_access($company_id);
         } else {
             $data['status'] = 'pending';
             $id = OBBP_Repository::insert('companies', $data);
@@ -365,6 +371,7 @@ final class OBBP_CSV
         foreach ($meta as $key => $value) {
             update_post_meta($id, $key, $value);
         }
+        OBBP_Repository::flush_product_prices($id);
         return true;
     }
 
@@ -445,6 +452,7 @@ final class OBBP_CSV
             }
         }
         $wpdb->query('COMMIT');
+        OBBP_Repository::flush_price_list($existing ? (int) $existing['id'] : (int) $id);
         return true;
     }
 
@@ -496,6 +504,7 @@ final class OBBP_CSV
                 return new WP_Error('obbp_row_failed', __('Price list row could not be saved.', 'obydullah-b2b-portal'));
             }
         }
+        OBBP_Repository::flush_product_prices((int) $product_id);
         return true;
     }
 
@@ -554,3 +563,4 @@ final class OBBP_CSV
         return fputcsv($handle, $values, ',', '"', '');
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

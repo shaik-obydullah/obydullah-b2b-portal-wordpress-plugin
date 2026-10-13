@@ -18,8 +18,8 @@ see [`docs/plan.md`](docs/plan.md) for the original scope.
    `wp_obbp_*` tables, installs the roles, and schedules the daily `obbp_expire_quotes` cron.
 3. Open **B2B Portal → Settings** and set the default currency, default country, and
    *Portal page* (a page containing the `[obbp_portal]` shortcode).
-4. Add your first company and approve it. Approval provisions a portal login for its primary
-   contact and emails them.
+4. Add your first company and contact. Link the contact to an existing WordPress user, then
+   approve the company — approval grants that linked user portal access and emails them.
 
 Schema installation happens once on activation. To pick up a schema change after an update,
 deactivate and reactivate the plugin.
@@ -131,13 +131,13 @@ Import details worth knowing:
 
 ### Applying company status on import
 
-`status` is a workflow state with side effects — approval provisions a portal login and every
-transition sends an email. It is therefore **opt-in**: tick *Apply company status from the CSV*
-to honour it.
+`status` is a workflow state with side effects — approval links the primary contact to an
+existing WordPress user and every transition sends an email. It is therefore **opt-in**: tick
+*Apply company status from the CSV* to honour it.
 
 When enabled, changes are routed through `OBBP_Workflow::set_company_status()` so the transition
-table, the active-primary-contact requirement, provisioning, the audit log, and notifications all
-still apply. Consequences:
+table, the active-primary-contact requirement, user linking, the audit log, and notifications
+all still apply. Consequences:
 
 - A company already in the target status is left alone, so re-importing an export is idempotent.
 - Newly created companies are always created `pending` and reported as needing follow-up; a
@@ -158,7 +158,8 @@ still apply. Consequences:
   non-numeric cells to defuse spreadsheet formula injection.
 - Uploads are limited to 5 MB and read with `is_uploaded_file()`.
 - `uninstall.php` clears the cron, removes the plugin's roles and `obbp_*` capabilities, and
-  drops the tables and catalog posts only when *Delete data on uninstall* was enabled.
+  drops the tables, catalog posts, and plugin user meta only when *Delete data on uninstall*
+  was enabled. It never creates or deletes WordPress users.
 
 ## Scheduled work
 

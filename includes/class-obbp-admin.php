@@ -3,11 +3,18 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Direct DB access is intentional: these queries run against the plugin's own
+// obbp_* tables, all values are bound via $wpdb->prepare(), and hot paths are
+// served through the OBBP_Repository cache layer.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 final class OBBP_Admin
 {
     public function __construct()
     {
         add_action('admin_menu', [$this, 'menu']);
+        add_filter('parent_file', [$this, 'highlight_catalog_parent']);
+        add_filter('submenu_file', [$this, 'highlight_catalog_submenu']);
         add_action('admin_post_obbp_action', [$this, 'handle_post']);
         add_action('admin_enqueue_scripts', [$this, 'assets']);
         add_action('admin_body_class', [$this, 'body_class']);
@@ -19,7 +26,9 @@ final class OBBP_Admin
         add_menu_page(__('B2B Portal', 'obydullah-b2b-portal'), __('B2B Portal', 'obydullah-b2b-portal'), 'obbp_view_dashboard', 'obbp-dashboard', [$this, 'dashboard'], 'dashicons-store', 75);
         add_submenu_page('obbp-dashboard', __('Dashboard', 'obydullah-b2b-portal'), __('Dashboard', 'obydullah-b2b-portal'), 'obbp_view_dashboard', 'obbp-dashboard', [$this, 'dashboard']);
         add_submenu_page('obbp-dashboard', __('Companies', 'obydullah-b2b-portal'), __('Companies', 'obydullah-b2b-portal'), 'obbp_manage_companies', 'obbp-companies', [$this, 'companies']);
-        add_submenu_page('obbp-dashboard', __('Catalog', 'obydullah-b2b-portal'), __('Catalog', 'obydullah-b2b-portal'), 'obbp_manage_catalog', 'obbp-catalog', [$this, 'catalog']);
+        add_submenu_page('obbp-dashboard', __('Catalog', 'obydullah-b2b-portal'), __('Catalog', 'obydullah-b2b-portal'), 'obbp_manage_catalog', 'edit.php?post_type=obbp_product');
+        add_submenu_page('obbp-dashboard', __('Product Categories', 'obydullah-b2b-portal'), __('Product Categories', 'obydullah-b2b-portal'), 'obbp_manage_product_terms', 'edit-tags.php?taxonomy=obbp_product_cat&post_type=obbp_product');
+        add_submenu_page('obbp-dashboard', __('Product Tags', 'obydullah-b2b-portal'), __('Product Tags', 'obydullah-b2b-portal'), 'obbp_manage_product_terms', 'edit-tags.php?taxonomy=obbp_product_tag&post_type=obbp_product');
         add_submenu_page('obbp-dashboard', __('Price Lists', 'obydullah-b2b-portal'), __('Price Lists', 'obydullah-b2b-portal'), 'obbp_manage_price_lists', 'obbp-price-lists', [$this, 'price_lists']);
         add_submenu_page('obbp-dashboard', __('RFQs', 'obydullah-b2b-portal'), __('RFQs', 'obydullah-b2b-portal'), 'obbp_manage_rfqs', 'obbp-rfqs', [$this, 'rfqs']);
         add_submenu_page('obbp-dashboard', __('Quotes', 'obydullah-b2b-portal'), __('Quotes', 'obydullah-b2b-portal'), 'obbp_manage_quotes', 'obbp-quotes', [$this, 'quotes']);
@@ -27,6 +36,27 @@ final class OBBP_Admin
         add_submenu_page('obbp-dashboard', __('Activity Log', 'obydullah-b2b-portal'), __('Activity Log', 'obydullah-b2b-portal'), 'obbp_view_activity', 'obbp-activity', [$this, 'activity']);
         add_submenu_page('obbp-dashboard', __('Import / Export', 'obydullah-b2b-portal'), __('Import / Export', 'obydullah-b2b-portal'), 'obbp_import_csv', 'obbp-transfer', [$this, 'transfer']);
         add_submenu_page('obbp-dashboard', __('Settings', 'obydullah-b2b-portal'), __('Settings', 'obydullah-b2b-portal'), 'obbp_manage_settings', 'obbp-settings', [$this, 'settings']);
+    }
+
+    public function highlight_catalog_parent($parent_file)
+    {
+        $screen = get_current_screen();
+        if ($screen && 'obbp_product' === $screen->post_type) {
+            return 'obbp-dashboard';
+        }
+        return $parent_file;
+    }
+
+    public function highlight_catalog_submenu($submenu_file)
+    {
+        $screen = get_current_screen();
+        if ($screen && 'obbp_product' === $screen->post_type) {
+            if (!empty($screen->taxonomy)) {
+                return 'edit-tags.php?taxonomy=' . $screen->taxonomy . '&post_type=obbp_product';
+            }
+            return 'edit.php?post_type=obbp_product';
+        }
+        return $submenu_file;
     }
 
     public function assets($hook)
@@ -75,18 +105,18 @@ final class OBBP_Admin
 
     public function notice()
     {
-        if (!isset($_GET['obbp_message']) && !isset($_GET['obbp_error'])) {
+        if (!isset($_GET['obbp_message']) && !isset($_GET['obbp_error'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav params, nonce checked centrally
             return;
         }
         $this->verify_navigation_nonce();
-        if (isset($_GET['obbp_message'])) {
-            $message = sanitize_text_field(wp_unslash($_GET['obbp_message']));
+        if (isset($_GET['obbp_message'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+            $message = sanitize_text_field(wp_unslash($_GET['obbp_message'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
             if ($message) {
                 printf('<div class="notice notice-success is-dismissible"><p>%s</p></div>', esc_html($message));
             }
         }
-        if (isset($_GET['obbp_error'])) {
-            $error = sanitize_text_field(wp_unslash($_GET['obbp_error']));
+        if (isset($_GET['obbp_error'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+            $error = sanitize_text_field(wp_unslash($_GET['obbp_error'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
             if ($error) {
                 printf('<div class="notice notice-error is-dismissible"><p>%s</p></div>', esc_html($error));
             }
@@ -199,15 +229,9 @@ final class OBBP_Admin
 
     public function dashboard()
     {
-        global $wpdb;
         $this->cap('obbp_view_dashboard');
         $this->verify_navigation_nonce();
-        $counts = [
-            __('Pending companies', 'obydullah-b2b-portal') => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status = 'pending' AND deleted_at IS NULL", OBBP_Repository::table('companies'))),
-            __('RFQs awaiting quote', 'obydullah-b2b-portal') => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status IN ('submitted','under_review') AND deleted_at IS NULL", OBBP_Repository::table('rfqs'))),
-            __('Quotes awaiting response', 'obydullah-b2b-portal') => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status IN ('sent','viewed') AND deleted_at IS NULL", OBBP_Repository::table('quotes'))),
-            __('Open purchase orders', 'obydullah-b2b-portal') => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status NOT IN ('completed','closed','cancelled') AND deleted_at IS NULL", OBBP_Repository::table('purchase_orders'))),
-        ];
+        $counts = OBBP_Repository::admin_counts();
         ?>
         <div class="wrap obbp-admin">
             <h1><?php esc_html_e('B2B Portal Dashboard', 'obydullah-b2b-portal'); ?></h1>
@@ -226,13 +250,13 @@ final class OBBP_Admin
     {
         $this->cap('obbp_manage_companies');
         $this->verify_navigation_nonce();
-        $view = sanitize_key(wp_unslash($_GET['view'] ?? 'list'));
+        $view = sanitize_key(wp_unslash($_GET['view'] ?? 'list')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
         if (in_array($view, ['add', 'edit'], true)) {
-            $this->company_form(absint(wp_unslash($_GET['id'] ?? 0)));
+            $this->company_form(absint(wp_unslash($_GET['id'] ?? 0))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
             return;
         }
-        $status = sanitize_key(wp_unslash($_GET['status'] ?? ''));
-        $search = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
+        $status = sanitize_key(wp_unslash($_GET['status'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+        $search = sanitize_text_field(wp_unslash($_GET['s'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
         if ($status && !array_key_exists($status, OBBP_Repository::status_labels('company'))) {
             $status = '';
         }
@@ -254,12 +278,12 @@ final class OBBP_Admin
         $this->cap('obbp_manage_companies');
         $this->verify_navigation_nonce();
         $company = $id ? OBBP_Repository::row('companies', $id) : null;
-        $tab = sanitize_key(wp_unslash($_GET['tab'] ?? 'details'));
+        $tab = sanitize_key(wp_unslash($_GET['tab'] ?? 'details')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
         if ('contacts' === $tab) {
             $this->cap('obbp_manage_contacts');
         $this->verify_navigation_nonce();
         }
-        $is_edit = $company && 'edit' === sanitize_key(wp_unslash($_GET['view'] ?? 'edit'));
+        $is_edit = $company && 'edit' === sanitize_key(wp_unslash($_GET['view'] ?? 'edit')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
         ?>
         <div class="wrap obbp-admin">
             <?php $this->back_link('obbp-companies', __('Companies', 'obydullah-b2b-portal')); ?>
@@ -319,14 +343,14 @@ final class OBBP_Admin
     {
         global $wpdb;
         $contacts = $wpdb->get_results($wpdb->prepare('SELECT * FROM %i WHERE company_id = %d AND deleted_at IS NULL ORDER BY is_primary DESC, full_name ASC', OBBP_Repository::table('company_contacts'), $company['id']), ARRAY_A);
-        $edit_id = absint(wp_unslash($_GET['contact_id'] ?? 0));
+        $edit_id = absint(wp_unslash($_GET['contact_id'] ?? 0)); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
         $contact = $edit_id ? OBBP_Repository::row('company_contacts', $edit_id) : null;
         if ($contact && (int) $contact['company_id'] !== (int) $company['id']) {
             $contact = null;
         }
         ?>
-        <div class="obbp-panel"><h2><?php esc_html_e('Contacts', 'obydullah-b2b-portal'); ?></h2><table class="widefat striped"><thead><tr><th><?php esc_html_e('Name', 'obydullah-b2b-portal'); ?></th><th><?php esc_html_e('Email', 'obydullah-b2b-portal'); ?></th><th><?php esc_html_e('Primary', 'obydullah-b2b-portal'); ?></th><th><?php esc_html_e('Can Approve', 'obydullah-b2b-portal'); ?></th><th><?php esc_html_e('User', 'obydullah-b2b-portal'); ?></th><th></th></tr></thead><tbody><?php foreach ($contacts as $row) : ?><tr><td><?php echo esc_html($row['full_name']); ?></td><td><?php echo esc_html($row['email']); ?></td><td><?php echo wp_kses_post($this->flag($row['is_primary'])); ?></td><td><?php echo wp_kses_post($this->flag($row['can_approve_quotes'])); ?></td><td><?php echo $row['user_id'] ? esc_html('#' . $row['user_id']) : wp_kses_post('<span class="obbp-dash" aria-hidden="true">&mdash;</span>'); ?></td><td><a href="<?php echo esc_url($this->url('obbp-companies', ['view' => 'edit', 'id' => $company['id'], 'tab' => 'contacts', 'contact_id' => $row['id']])); ?>"><?php esc_html_e('Edit', 'obydullah-b2b-portal'); ?></a></td></tr><?php endforeach; ?></tbody></table></div>
-        <div class="obbp-panel"><h2><?php echo $contact ? esc_html__('Edit Contact', 'obydullah-b2b-portal') : esc_html__('Add Contact', 'obydullah-b2b-portal'); ?></h2><form method="post" action="<?php echo esc_url(admin_url('admin-post.php?action=obbp_action')); ?>"><input type="hidden" name="obbp_do" value="save_contact"><input type="hidden" name="id" value="<?php echo esc_attr($contact['id'] ?? 0); ?>"><input type="hidden" name="company_id" value="<?php echo esc_attr($company['id']); ?>"><?php wp_nonce_field(OBBP_NONCE_ADMIN, 'obbp_nonce'); ?><table class="form-table"><tbody><?php $this->text_field('full_name', __('Full name', 'obydullah-b2b-portal'), $contact['full_name'] ?? '', true); ?><?php $this->email_field('email', __('Email', 'obydullah-b2b-portal'), $contact['email'] ?? '', true); ?><?php $this->text_field('phone', __('Phone', 'obydullah-b2b-portal'), $contact['phone'] ?? ''); ?><?php $this->text_field('job_title', __('Job title', 'obydullah-b2b-portal'), $contact['job_title'] ?? ''); ?><tr><th><?php esc_html_e('Permissions', 'obydullah-b2b-portal'); ?></th><td><label><input type="checkbox" name="is_primary" value="1" <?php checked($contact['is_primary'] ?? 0, 1); ?>> <?php esc_html_e('Primary contact', 'obydullah-b2b-portal'); ?></label><br><label><input type="checkbox" name="can_approve_quotes" value="1" <?php checked($contact['can_approve_quotes'] ?? 0, 1); ?>> <?php esc_html_e('Can accept or reject quotes', 'obydullah-b2b-portal'); ?></label><br><label><input type="checkbox" name="email_enabled" value="1" <?php checked($contact['status'] ?? 'active', 'active'); ?>> <?php esc_html_e('Active', 'obydullah-b2b-portal'); ?></label></td></tr></tbody></table><?php submit_button($contact ? __('Update Contact', 'obydullah-b2b-portal') : __('Add Contact', 'obydullah-b2b-portal')); ?></form></div>
+        <div class="obbp-panel"><h2><?php esc_html_e('Contacts', 'obydullah-b2b-portal'); ?></h2><table class="widefat striped"><thead><tr><th><?php esc_html_e('Name', 'obydullah-b2b-portal'); ?></th><th><?php esc_html_e('Email', 'obydullah-b2b-portal'); ?></th><th><?php esc_html_e('Primary', 'obydullah-b2b-portal'); ?></th><th><?php esc_html_e('Can Approve', 'obydullah-b2b-portal'); ?></th><th><?php esc_html_e('User', 'obydullah-b2b-portal'); ?></th><th></th></tr></thead><tbody><?php foreach ($contacts as $row) : ?><tr><td><?php echo esc_html($row['full_name']); ?></td><td><?php echo esc_html($row['email']); ?></td><td><?php echo wp_kses_post($this->flag($row['is_primary'])); ?></td><td><?php echo wp_kses_post($this->flag($row['can_approve_quotes'])); ?></td><td><?php $linked_user = $row['user_id'] ? get_userdata($row['user_id']) : null; echo $linked_user ? esc_html($linked_user->display_name) : wp_kses_post('<span class="obbp-dash" aria-hidden="true">&mdash;</span>'); ?></td><td><a href="<?php echo esc_url($this->url('obbp-companies', ['view' => 'edit', 'id' => $company['id'], 'tab' => 'contacts', 'contact_id' => $row['id']])); ?>"><?php esc_html_e('Edit', 'obydullah-b2b-portal'); ?></a></td></tr><?php endforeach; ?></tbody></table></div>
+        <div class="obbp-panel"><h2><?php echo $contact ? esc_html__('Edit Contact', 'obydullah-b2b-portal') : esc_html__('Add Contact', 'obydullah-b2b-portal'); ?></h2><form method="post" action="<?php echo esc_url(admin_url('admin-post.php?action=obbp_action')); ?>"><input type="hidden" name="obbp_do" value="save_contact"><input type="hidden" name="id" value="<?php echo esc_attr($contact['id'] ?? 0); ?>"><input type="hidden" name="company_id" value="<?php echo esc_attr($company['id']); ?>"><?php wp_nonce_field(OBBP_NONCE_ADMIN, 'obbp_nonce'); ?><table class="form-table"><tbody><?php $this->text_field('full_name', __('Full name', 'obydullah-b2b-portal'), $contact['full_name'] ?? '', true); ?><?php $this->email_field('email', __('Email', 'obydullah-b2b-portal'), $contact['email'] ?? '', true); ?><?php $this->text_field('phone', __('Phone', 'obydullah-b2b-portal'), $contact['phone'] ?? ''); ?><?php $this->text_field('job_title', __('Job title', 'obydullah-b2b-portal'), $contact['job_title'] ?? ''); ?><tr><th><label for="obbp_contact_user"><?php esc_html_e('Portal user', 'obydullah-b2b-portal'); ?></label></th><td><?php wp_dropdown_users(['name' => 'user_id', 'id' => 'obbp_contact_user', 'selected' => absint($contact['user_id'] ?? 0), 'show_option_none' => __('&mdash; Not linked &mdash;', 'obydullah-b2b-portal'), 'option_none_value' => '0', 'show' => 'display_name_with_login']); ?><p class="description"><?php esc_html_e('Link an existing WordPress user to grant portal access. Create users under Users &rarr; Add New; the plugin never creates accounts.', 'obydullah-b2b-portal'); ?></p></td></tr><tr><th><?php esc_html_e('Permissions', 'obydullah-b2b-portal'); ?></th><td><label><input type="checkbox" name="is_primary" value="1" <?php checked($contact['is_primary'] ?? 0, 1); ?>> <?php esc_html_e('Primary contact', 'obydullah-b2b-portal'); ?></label><br><label><input type="checkbox" name="can_approve_quotes" value="1" <?php checked($contact['can_approve_quotes'] ?? 0, 1); ?>> <?php esc_html_e('Can accept or reject quotes', 'obydullah-b2b-portal'); ?></label><br><label><input type="checkbox" name="email_enabled" value="1" <?php checked($contact['status'] ?? 'active', 'active'); ?>> <?php esc_html_e('Active', 'obydullah-b2b-portal'); ?></label></td></tr></tbody></table><?php submit_button($contact ? __('Update Contact', 'obydullah-b2b-portal') : __('Add Contact', 'obydullah-b2b-portal')); ?></form></div>
         <?php
     }
 
@@ -334,9 +358,9 @@ final class OBBP_Admin
     {
         $this->cap('obbp_manage_price_lists');
         $this->verify_navigation_nonce();
-        $view = sanitize_key(wp_unslash($_GET['view'] ?? 'list'));
+        $view = sanitize_key(wp_unslash($_GET['view'] ?? 'list')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
         if (in_array($view, ['add', 'edit'], true)) {
-            $this->price_list_form(absint(wp_unslash($_GET['id'] ?? 0)));
+            $this->price_list_form(absint(wp_unslash($_GET['id'] ?? 0))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
             return;
         }
         $rows = OBBP_Repository::rows('price_lists', [], ['orderby' => 'name', 'order' => 'ASC', 'limit' => 200]);
@@ -364,11 +388,11 @@ final class OBBP_Admin
     {
         $this->cap('obbp_manage_rfqs');
         $this->verify_navigation_nonce();
-        if ('edit' === sanitize_key(wp_unslash($_GET['view'] ?? ''))) {
-            $this->rfq_detail(absint(wp_unslash($_GET['id'] ?? 0)));
+        if ('edit' === sanitize_key(wp_unslash($_GET['view'] ?? ''))) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+            $this->rfq_detail(absint(wp_unslash($_GET['id'] ?? 0))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
             return;
         }
-        $status = sanitize_key(wp_unslash($_GET['status'] ?? ''));
+        $status = sanitize_key(wp_unslash($_GET['status'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
         if ($status && !array_key_exists($status, OBBP_Repository::status_labels('rfq'))) {
             $status = '';
         }
@@ -400,8 +424,8 @@ final class OBBP_Admin
         global $wpdb;
         $this->cap('obbp_manage_quotes');
         $this->verify_navigation_nonce();
-        if ('edit' === sanitize_key(wp_unslash($_GET['view'] ?? ''))) {
-            $this->quote_detail(absint(wp_unslash($_GET['id'] ?? 0)));
+        if ('edit' === sanitize_key(wp_unslash($_GET['view'] ?? ''))) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+            $this->quote_detail(absint(wp_unslash($_GET['id'] ?? 0))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
             return;
         }
         $rows = $wpdb->get_results($wpdb->prepare('SELECT q.*, c.name company_name FROM %i q INNER JOIN %i c ON c.id = q.company_id WHERE q.deleted_at IS NULL ORDER BY q.created_at DESC LIMIT 200', OBBP_Repository::table('quotes'), OBBP_Repository::table('companies')), ARRAY_A);
@@ -436,8 +460,8 @@ final class OBBP_Admin
         global $wpdb;
         $this->cap('obbp_manage_purchase_orders');
         $this->verify_navigation_nonce();
-        if ('edit' === sanitize_key(wp_unslash($_GET['view'] ?? ''))) {
-            $this->po_detail(absint(wp_unslash($_GET['id'] ?? 0)));
+        if ('edit' === sanitize_key(wp_unslash($_GET['view'] ?? ''))) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+            $this->po_detail(absint(wp_unslash($_GET['id'] ?? 0))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
             return;
         }
         $rows = $wpdb->get_results($wpdb->prepare('SELECT p.*, c.name company_name FROM %i p INNER JOIN %i c ON c.id = p.company_id WHERE p.deleted_at IS NULL ORDER BY p.created_at DESC LIMIT 200', OBBP_Repository::table('purchase_orders'), OBBP_Repository::table('companies')), ARRAY_A);
@@ -468,11 +492,11 @@ final class OBBP_Admin
     {
         $this->cap('obbp_view_activity');
         $this->verify_navigation_nonce();
-        $company_id = absint($_GET['company_id'] ?? 0);
-        $object_type = sanitize_key(wp_unslash($_GET['object_type'] ?? ''));
-        $action = sanitize_key(wp_unslash($_GET['action'] ?? ''));
-        $actor_type = sanitize_key(wp_unslash($_GET['actor_type'] ?? ''));
-        $search = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
+        $company_id = absint($_GET['company_id'] ?? 0); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+        $object_type = sanitize_key(wp_unslash($_GET['object_type'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+        $action = sanitize_key(wp_unslash($_GET['action'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+        $actor_type = sanitize_key(wp_unslash($_GET['actor_type'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
+        $search = sanitize_text_field(wp_unslash($_GET['s'] ?? '')); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only nav param, nonce checked centrally
         $rows = OBBP_Repository::activity([
             'limit' => 300,
             'company_id' => $company_id,
@@ -539,12 +563,6 @@ final class OBBP_Admin
         ?>
         <div class="wrap obbp-admin"><h1><?php esc_html_e('B2B Portal Settings', 'obydullah-b2b-portal'); ?></h1><form method="post" action="<?php echo esc_url(admin_url('admin-post.php?action=obbp_action')); ?>"><input type="hidden" name="obbp_do" value="save_settings"><?php wp_nonce_field(OBBP_NONCE_ADMIN, 'obbp_nonce'); ?><table class="form-table"><tbody><tr><th><label for="obbp_portal_page"><?php esc_html_e('Portal page', 'obydullah-b2b-portal'); ?></label></th><td><select id="obbp_portal_page" name="portal_page_id"><?php echo wp_kses_post(wp_dropdown_pages(['selected' => $settings['portal_page_id'], 'show_option_none' => __('Select a page', 'obydullah-b2b-portal'), 'echo' => 0])); ?></select><p class="description"><?php esc_html_e('The selected page should contain the [obbp_portal] shortcode.', 'obydullah-b2b-portal'); ?></p></td></tr><?php $this->text_field('default_country', __('Default country', 'obydullah-b2b-portal'), $settings['default_country']); ?><?php $this->text_field('default_currency', __('Default currency', 'obydullah-b2b-portal'), $settings['default_currency']); ?><?php $this->text_field('email_from_name', __('Email sender name', 'obydullah-b2b-portal'), $settings['email_from_name']); ?><tr><th><?php esc_html_e('Email', 'obydullah-b2b-portal'); ?></th><td><label><input type="checkbox" name="email_enabled" value="1" <?php checked($settings['email_enabled'], 1); ?>> <?php esc_html_e('Enable portal emails', 'obydullah-b2b-portal'); ?></label></td></tr><tr><th><?php esc_html_e('Uninstall', 'obydullah-b2b-portal'); ?></th><td><label><input type="checkbox" name="delete_data_on_uninstall" value="1" <?php checked($settings['delete_data_on_uninstall'], 1); ?>> <?php esc_html_e('Delete all plugin data on uninstall', 'obydullah-b2b-portal'); ?></label></td></tr></tbody></table><?php submit_button(__('Save Settings', 'obydullah-b2b-portal')); ?></form><hr><form method="post" action="<?php echo esc_url(admin_url('admin-post.php?action=obbp_action')); ?>"><input type="hidden" name="obbp_do" value="resync_roles"><?php wp_nonce_field(OBBP_NONCE_ADMIN, 'obbp_nonce'); ?><button class="button"><?php esc_html_e('Synchronize Roles and Capabilities', 'obydullah-b2b-portal'); ?></button></form></div>
         <?php
-    }
-
-    public function catalog()
-    {
-        wp_safe_redirect(admin_url('edit.php?post_type=obbp_product'));
-        exit;
     }
 
     private function save_company()
@@ -623,6 +641,7 @@ final class OBBP_Admin
             if (false === $updated) {
                 return new WP_Error('obbp_update_failed', __('The company could not be updated.', 'obydullah-b2b-portal'));
             }
+            OBBP_Repository::flush_company_access($id);
             OBBP_Repository::log($id, 'company', $id, 'updated', 'Company details updated.');
             return __('Company updated.', 'obydullah-b2b-portal');
         }
@@ -682,6 +701,19 @@ final class OBBP_Admin
                 return new WP_Error('obbp_primary_contact_required', __('Choose another active primary contact before changing this one.', 'obydullah-b2b-portal'));
             }
         }
+        $user_id = absint(wp_unslash($_POST['user_id'] ?? 0));
+        if ($user_id && !get_userdata($user_id)) {
+            $wpdb->query('ROLLBACK');
+            return new WP_Error('obbp_user_missing', __('The selected WordPress user does not exist.', 'obydullah-b2b-portal'));
+        }
+        if ($user_id) {
+            $linked_company = $wpdb->get_var($wpdb->prepare('SELECT id FROM %i WHERE user_id = %d AND id != %d AND deleted_at IS NULL LIMIT 1', OBBP_Repository::table('companies'), $user_id, $company_id));
+            $linked_contact = $wpdb->get_var($wpdb->prepare('SELECT id FROM %i WHERE user_id = %d AND id != %d AND deleted_at IS NULL LIMIT 1', OBBP_Repository::table('company_contacts'), $user_id, $id));
+            if ($linked_company || $linked_contact) {
+                $wpdb->query('ROLLBACK');
+                return new WP_Error('obbp_user_already_linked', __('That WordPress user is already linked to another company.', 'obydullah-b2b-portal'));
+            }
+        }
         if ($is_primary) {
             $other_primary_ids = $wpdb->get_col($wpdb->prepare('SELECT id FROM %i WHERE company_id = %d AND id != %d AND is_primary = 1 AND deleted_at IS NULL', OBBP_Repository::table('company_contacts'), $company_id, $id));
             $cleared = OBBP_Repository::update_ids('company_contacts', ['is_primary' => 0], ['%d'], $other_primary_ids);
@@ -696,6 +728,7 @@ final class OBBP_Admin
             'email' => $email,
             'phone' => sanitize_text_field(wp_unslash($_POST['phone'] ?? '')),
             'job_title' => sanitize_text_field(wp_unslash($_POST['job_title'] ?? '')),
+            'user_id' => $user_id ?: null,
             'is_primary' => $is_primary,
             'can_approve_quotes' => isset($_POST['can_approve_quotes']) ? 1 : 0,
             'status' => $is_active ? 'active' : 'disabled',
@@ -713,7 +746,9 @@ final class OBBP_Admin
                 return new WP_Error('obbp_insert_failed', __('The contact could not be saved.', 'obydullah-b2b-portal'));
             }
         }
+        $old_user_id = $contact ? absint($contact['user_id']) : 0;
         $wpdb->query('COMMIT');
+        OBBP_Repository::flush_company_access($company_id, [$old_user_id, $user_id]);
         OBBP_Repository::log($company_id, 'contact', $id, $contact ? 'updated' : 'created', 'Company contact saved.');
         return __('Contact saved.', 'obydullah-b2b-portal');
     }
@@ -804,6 +839,7 @@ final class OBBP_Admin
             }
         }
         $wpdb->query('COMMIT');
+        OBBP_Repository::flush_price_list($id);
         OBBP_Repository::log(0, 'price_list', $id, $existing ? 'updated' : 'created', 'Price list saved.');
         return ['message' => __('Price list saved.', 'obydullah-b2b-portal'), 'redirect' => $this->url('obbp-price-lists', ['view' => 'edit', 'id' => $id])];
     }
@@ -888,6 +924,7 @@ final class OBBP_Admin
             return new WP_Error('obbp_price_item_failed', __('The price list could not be updated.', 'obydullah-b2b-portal'));
         }
         $wpdb->query('COMMIT');
+        OBBP_Repository::flush_price_list_items($list_id);
         OBBP_Repository::log(0, 'price_list', $list_id, 'items_updated', 'Price list items updated.');
         return __('Prices saved.', 'obydullah-b2b-portal');
     }
@@ -918,6 +955,7 @@ final class OBBP_Admin
             'delete_data_on_uninstall' => isset($_POST['delete_data_on_uninstall']) ? 1 : 0,
         ];
         update_option(OBBP_OPTION_SETTINGS, $settings);
+        OBBP_Repository::flush_settings();
         OBBP_Repository::log(0, 'settings', 0, 'updated', 'B2B settings updated.', ['changed' => array_keys(array_diff_assoc($settings, $old))]);
         return __('Settings saved.', 'obydullah-b2b-portal');
     }
@@ -999,3 +1037,4 @@ final class OBBP_Admin
         return wp_nonce_url(add_query_arg(array_merge(['page' => $page], $args), admin_url('admin.php')), OBBP_NONCE_ADMIN);
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

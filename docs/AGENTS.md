@@ -24,7 +24,7 @@ failure case of every rule — including a documented known gap (superseding a s
 | `includes/class-obbp-csv.php` | Import/export endpoints and the per-entity row handlers. |
 | `includes/class-obbp-admin.php` | Admin menu, screen rendering (inline PHP), the `admin_post_obbp_action` dispatcher. |
 | `includes/class-obbp-portal.php` | Shortcodes, portal views, `admin_post_obbp_portal` dispatcher, quote print view and CSV download. |
-| `uninstall.php` | Role/capability removal always; tables, products, options, plugin-created users only when the setting is on. |
+| `uninstall.php` | Role/capability removal always; tables, products, options, and plugin user meta only when the setting is on. |
 | `assets/` | `css/obbp-admin.css`, `css/obbp-portal.css`, `js/obbp-portal.js` (progressive enhancement only). |
 | `docs/plan.md` | Original scope, including what v1 deliberately excludes. |
 | `docs/cases.md` | Behaviour/failure-case tables per area. Update when a rule changes. |
@@ -70,7 +70,7 @@ client has no `caching_sha2_password` plugin) — use `wp eval` with `$wpdb` ins
 
 ```bash
 # reset then seed (OBBP_SEED_RESET truncates the tables, deletes obbp_product posts,
-# the provisioned portal users and the catalog terms)
+# the linked portal users and the catalog terms)
 docker compose run --rm --no-deps -e OBBP_SEED_RESET=1 --entrypoint wp wp-cli eval-file \
   /var/www/html/wp-content/plugins/obydullah-b2b-portal/bin/seed-demo-data.php \
   --path=/var/www/html --allow-root
@@ -125,8 +125,10 @@ Match the existing style. Do not add comments unless asked.
 - **One `final class` per file**, file named `class-obbp-<kebab>.php`, and the bootstrap must
   `require_once` it. Every class starts with `if (!defined('ABSPATH')) { exit; }`.
 - **i18n.** The text domain is the plugin slug: **`Text Domain: obydullah-b2b-portal`** in the
-  bootstrap header, matching `readme.txt` and the `load_plugin_textdomain()` call in
-  `OBBP_Plugin::boot()`. Every user-facing string goes through `__()`, `esc_html__()`,
+  bootstrap header, matching `readme.txt` and the `Domain Path: /languages` header. The plugin
+  deliberately does **not** call `load_plugin_textdomain()`: as a wp.org-hosted plugin its
+  translations load just-in-time from the standard language folders (and since WP 6.7 a manual
+  call before `init` is discouraged). Every user-facing string goes through `__()`, `esc_html__()`,
   `esc_html_e()`, `esc_attr_e()` etc. with the `'obydullah-b2b-portal'` literal as the domain
   argument — never the short `'obbp'` form, which is reserved for the `obbp_product` post
   type, `obbp-*` menu slugs, and `class-obbp-*` filenames. No bare English in markup. Keep the
@@ -167,6 +169,15 @@ Match the existing style. Do not add comments unless asked.
   `$wpdb`. `row()`/`rows()` exclude `deleted_at IS NOT NULL` unless you pass
   `$include_deleted` — every read of a soft-deleted table must go through them or add the
   filter by hand.
+- **Object cache.** Hot reads are cached with `wp_cache_*` under the `obbp` group via
+  `OBBP_Repository::cache_get/cache_set/cache_delete`. Every writer MUST invalidate, or
+  staleness leaks: `flush_company_access()` on company/contact/status writes,
+  `flush_product_prices()` on product meta or price-item writes, `flush_price_list_items()`
+  when items of a list change, `flush_price_list()` on list create/edit, `flush_settings()`
+  on settings save. Membership caches (`cfu:`/`owns:`) are security data — never cache them
+  without a matching flush via `flush_company_access()`. Dashboard counters and activity
+  facets are TTL-only (`CACHE_TTL_COUNTS`, 60s) and need no invalidation. When adding a new
+  mutation, check this section before writing — a missed flush is a security/price bug.
 - **Numbers and dates.** `OBBP_Repository::money()` (2dp) and `quantity()` (4dp) — never
   `round()` inline. `OBBP_Repository::now()` for datetimes, `current_time('Y-m-d')` for dates.
 - **Reference numbers.** Insert with a `TMP-<uuid>` placeholder, then update to
@@ -189,8 +200,8 @@ Match the existing style. Do not add comments unless asked.
   never roll back saved data.
 - **Roll back, never exit.** On any failure inside a transaction: `$wpdb->query('ROLLBACK')`
   then `return new WP_Error('obbp_…', …)`. Never `exit`/`wp_die` between `START TRANSACTION`
-  and `COMMIT`. If provisioning created a WordPress user, delete it on the failure path
-  (see `set_company_status`).
+  and `COMMIT`. Approval links an existing WordPress user only — the plugin never creates
+  accounts, so there is no user to delete on the failure path (see `set_company_status`).
 - **Tenant isolation.** Any customer-facing read of an RFQ, quote, or PO goes through
   `OBBP_Workflow::company_rfq()` / `company_quote()` / `company_po()`, or
   `OBBP_Repository::company_owns_user()` plus an `approved` company. Never trust `obbp_id`.

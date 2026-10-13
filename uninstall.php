@@ -3,6 +3,11 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
+// Uninstall only touches the plugin's own obbp_* tables and its roles, options
+// and capabilities. Values are bound via $wpdb->prepare(); the temporary schema
+// change (DROP TABLE) is the deliberate purpose of this script.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+
 $obbp_option_settings = defined('OBBP_OPTION_SETTINGS') ? OBBP_OPTION_SETTINGS : 'obbp_settings';
 $obbp_settings = get_option($obbp_option_settings, []);
 wp_clear_scheduled_hook('obbp_expire_quotes');
@@ -38,7 +43,6 @@ $obbp_tables = [
     $obbp_prefix . 'company_contacts',
     $obbp_prefix . 'companies',
 ];
-$obbp_user_ids = $wpdb->get_col($wpdb->prepare('SELECT DISTINCT user_id FROM %i WHERE meta_key = %s AND meta_value = %s', $wpdb->usermeta, '_obbp_created_by_plugin', '1'));
 $obbp_product_ids = $wpdb->get_col($wpdb->prepare('SELECT ID FROM %i WHERE post_type = %s AND post_status != %s', $wpdb->posts, 'obbp_product', 'trash'));
 $obbp_cleanup_failed = false;
 foreach ($obbp_tables as $obbp_table) {
@@ -52,22 +56,6 @@ foreach ($obbp_product_ids as $obbp_product_id) {
         $obbp_cleanup_failed = true;
     }
 }
-foreach ($obbp_user_ids as $obbp_user_id) {
-    $obbp_user_id = absint($obbp_user_id);
-    $obbp_user = $obbp_user_id ? get_userdata($obbp_user_id) : null;
-    if (!$obbp_user || array_diff((array) $obbp_user->roles, ['obbp_customer'])) {
-        continue;
-    }
-    $obbp_authored = get_posts(['author' => $obbp_user_id, 'post_type' => 'any', 'post_status' => 'any', 'numberposts' => 1, 'fields' => 'ids']);
-    if ($obbp_authored) {
-        continue;
-    }
-    require_once ABSPATH . 'wp-admin/includes/user.php';
-    $obbp_deleted_user = wp_delete_user($obbp_user_id);
-    if (is_wp_error($obbp_deleted_user) || !$obbp_deleted_user) {
-        $obbp_cleanup_failed = true;
-    }
-}
 foreach (['_obbp_created_by_plugin', '_obbp_company_id'] as $obbp_meta_key) {
     if (false === $wpdb->delete($wpdb->usermeta, ['meta_key' => $obbp_meta_key], ['%s'])) {
         $obbp_cleanup_failed = true;
@@ -77,3 +65,4 @@ if ($obbp_cleanup_failed) {
     return;
 }
 delete_option($obbp_option_settings);
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange

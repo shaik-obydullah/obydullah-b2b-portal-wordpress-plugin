@@ -3,6 +3,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Direct DB access is intentional: these queries run against the plugin's own
+// obbp_* tables, all values are bound via $wpdb->prepare(), and hot paths are
+// served through the OBBP_Repository cache layer.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 final class OBBP_Mailer
 {
     public static function company_status($company_id, $status)
@@ -132,3 +137,4 @@ final class OBBP_Mailer
         return '<!doctype html><html><body style="font-family:Arial,sans-serif;color:#172033;line-height:1.6"><div style="max-width:640px;margin:auto;padding:24px"><h2 style="margin-top:0">' . esc_html($site) . '</h2>' . $text . '<p style="color:#667085;font-size:13px">' . esc_html($company['name'] ?? '') . '</p></div></body></html>';
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

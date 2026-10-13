@@ -26,7 +26,7 @@ final class OBBP_Catalog
             'public' => false,
             'publicly_queryable' => false,
             'show_ui' => true,
-            'show_in_menu' => 'obbp-catalog',
+            'show_in_menu' => false,
             'exclude_from_search' => true,
             'has_archive' => false,
             'rewrite' => false,
@@ -42,7 +42,7 @@ final class OBBP_Catalog
             'labels' => ['name' => __('Product Categories', 'obydullah-b2b-portal'), 'singular_name' => __('Product Category', 'obydullah-b2b-portal')],
             'public' => false,
             'show_ui' => true,
-            'show_in_menu' => 'obbp-catalog',
+            'show_in_menu' => false,
             'hierarchical' => true,
             'capabilities' => [
                 'manage_terms' => 'obbp_manage_product_terms',
@@ -56,7 +56,7 @@ final class OBBP_Catalog
             'labels' => ['name' => __('Product Tags', 'obydullah-b2b-portal'), 'singular_name' => __('Product Tag', 'obydullah-b2b-portal')],
             'public' => false,
             'show_ui' => true,
-            'show_in_menu' => 'obbp-catalog',
+            'show_in_menu' => false,
             'hierarchical' => false,
             'capabilities' => [
                 'manage_terms' => 'obbp_manage_product_terms',
@@ -195,12 +195,9 @@ final class OBBP_Catalog
             '_obbp_attributes' => self::parse_attributes(sanitize_textarea_field(wp_unslash($_POST['obbp_attributes'] ?? ''))),
         ];
         foreach ($values as $key => $value) {
-            if (is_array($value)) {
-                update_post_meta($post_id, $key, $value);
-            } else {
-                update_post_meta($post_id, $key, $value);
-            }
+            update_post_meta($post_id, $key, $value);
         }
+        OBBP_Repository::flush_product_prices($post_id);
         unset($post);
     }
 

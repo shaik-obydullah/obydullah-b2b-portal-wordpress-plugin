@@ -3,6 +3,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Direct DB access is intentional: these queries run against the plugin's own
+// obbp_* tables, all values are bound via $wpdb->prepare(), and hot paths are
+// served through the OBBP_Repository cache layer.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 final class OBBP_Workflow
 {
     public static function set_company_status($company_id, $status, $note = '')
@@ -31,25 +36,19 @@ final class OBBP_Workflow
             return new WP_Error('obbp_invalid_status', __('That company status transition is no longer allowed.', 'obydullah-b2b-portal'));
         }
         $company = $locked;
-        $created_user_id = 0;
+        $user_id = 0;
         if ('approved' === $status) {
             $primary = $wpdb->get_row($wpdb->prepare('SELECT * FROM %i WHERE company_id = %d AND is_primary = 1 AND status = \'active\' AND deleted_at IS NULL LIMIT 1 FOR UPDATE', OBBP_Repository::table('company_contacts'), $company_id), ARRAY_A);
             if (!$primary) {
                 $wpdb->query('ROLLBACK');
                 return new WP_Error('obbp_primary_contact_required', __('An active primary contact is required before approval.', 'obydullah-b2b-portal'));
             }
-            $provisioned = self::provision_portal_user($company, $primary);
-            if (is_wp_error($provisioned)) {
+            $linked = self::link_portal_user($company, $primary);
+            if (is_wp_error($linked)) {
                 $wpdb->query('ROLLBACK');
-                $error_data = $provisioned->get_error_data();
-                if (is_array($error_data) && !empty($error_data['created_user_id'])) {
-                    require_once ABSPATH . 'wp-admin/includes/user.php';
-                    wp_delete_user(absint($error_data['created_user_id']));
-                }
-                return $provisioned;
+                return $linked;
             }
-            $user_id = absint($provisioned['user_id']);
-            $created_user_id = absint($provisioned['created_user_id']);
+            $user_id = absint($linked['user_id']);
             $data = [
                 'status' => 'approved',
                 'status_note' => '',
@@ -69,19 +68,15 @@ final class OBBP_Workflow
         $updated = OBBP_Repository::update('companies', $data, null, ['id' => $company_id, 'status' => $company['status']]);
         if (false === $updated || 0 === $updated) {
             $wpdb->query('ROLLBACK');
-            if ($created_user_id) {
-                require_once ABSPATH . 'wp-admin/includes/user.php';
-                wp_delete_user($created_user_id);
-            }
             return new WP_Error('obbp_update_failed', __('The company could not be updated.', 'obydullah-b2b-portal'));
         }
         if (false === $wpdb->query('COMMIT')) {
-            if ($created_user_id) {
-                require_once ABSPATH . 'wp-admin/includes/user.php';
-                wp_delete_user($created_user_id);
-            }
             return new WP_Error('obbp_update_failed', __('The company status could not be committed.', 'obydullah-b2b-portal'));
         }
+        if ($user_id) {
+            self::grant_portal_access($user_id, $company_id);
+        }
+        OBBP_Repository::flush_company_access($company_id, $user_id ? [$user_id] : []);
         OBBP_Repository::log($company_id, 'company', $company_id, 'status_' . $status, sprintf('Company status changed to %s.', $status), ['from' => $company['status'], 'to' => $status, 'note' => sanitize_textarea_field($note)]);
         OBBP_Mailer::company_status($company_id, $status);
         return true;
@@ -1081,59 +1076,57 @@ final class OBBP_Workflow
         return (bool) $wpdb->get_var($wpdb->prepare("SELECT id FROM %i WHERE company_id = %d AND user_id = %d AND can_approve_quotes = 1 AND status = 'active' AND deleted_at IS NULL LIMIT 1", OBBP_Repository::table('company_contacts'), $quote['company_id'], $user_id));
     }
 
-    private static function provision_portal_user($company, $contact)
+    /**
+     * Links a company to an already-existing WordPress user.
+     *
+     * The plugin never creates user accounts. If the primary contact is not
+     * linked yet, this resolves a matching existing user by email so the
+     * approval flow keeps working, but it returns an error when no user exists.
+     */
+    private static function link_portal_user($company, $contact)
     {
         global $wpdb;
-        $created_user = false;
         $user_id = absint($contact['user_id']);
         if ($user_id && !get_userdata($user_id)) {
             $user_id = 0;
         }
         if (!$user_id) {
-            $user = get_user_by('email', $company['email']);
-            if (!$user) {
-                $user = get_user_by('email', $contact['email']);
+            $user = get_user_by('email', $contact['email']);
+            if (!$user && !empty($company['email'])) {
+                $user = get_user_by('email', $company['email']);
             }
             if ($user) {
                 $user_id = $user->ID;
             }
         }
-        if ($user_id) {
-            $other = $wpdb->get_var($wpdb->prepare('SELECT id FROM %i WHERE user_id = %d AND id != %d AND deleted_at IS NULL LIMIT 1', OBBP_Repository::table('companies'), $user_id, $company['id']));
-            $other_contact = $wpdb->get_var($wpdb->prepare('SELECT id FROM %i WHERE user_id = %d AND company_id != %d AND deleted_at IS NULL LIMIT 1', OBBP_Repository::table('company_contacts'), $user_id, $company['id']));
-            if ($other || $other_contact) {
-                return new WP_Error('obbp_user_already_linked', __('This contact is already linked to another company.', 'obydullah-b2b-portal'));
-            }
-        }
         if (!$user_id) {
-            $username = 'obbp-' . substr(md5(strtolower($company['email']) . wp_generate_password(8, false)), 0, 14);
-            $user_id = wp_insert_user([
-                'user_login' => $username,
-                'user_email' => sanitize_email($company['email']),
-                'user_pass' => wp_generate_password(32, true, true),
-                'display_name' => $company['name'],
-                'first_name' => sanitize_text_field($contact['full_name']),
-                'role' => 'obbp_customer',
-            ]);
-            if (is_wp_error($user_id) || !$user_id) {
-                return is_wp_error($user_id) ? $user_id : new WP_Error('obbp_user_create_failed', __('The portal account could not be created.', 'obydullah-b2b-portal'));
-            }
-            $created_user = true;
-            update_user_meta($user_id, '_obbp_created_by_plugin', 1);
-        } else {
-            $user = new WP_User($user_id);
-            $user->add_role('obbp_customer');
+            return new WP_Error('obbp_contact_login_required', __('Link this contact to an existing WordPress user before approving the company.', 'obydullah-b2b-portal'));
         }
-        update_user_meta($user_id, '_obbp_company_id', $company['id']);
+        $other = $wpdb->get_var($wpdb->prepare('SELECT id FROM %i WHERE user_id = %d AND id != %d AND deleted_at IS NULL LIMIT 1', OBBP_Repository::table('companies'), $user_id, $company['id']));
+        $other_contact = $wpdb->get_var($wpdb->prepare('SELECT id FROM %i WHERE user_id = %d AND company_id != %d AND deleted_at IS NULL LIMIT 1', OBBP_Repository::table('company_contacts'), $user_id, $company['id']));
+        if ($other || $other_contact) {
+            return new WP_Error('obbp_user_already_linked', __('This contact is already linked to another company.', 'obydullah-b2b-portal'));
+        }
         $contact_updated = OBBP_Repository::update('company_contacts', ['user_id' => $user_id], ['%d'], ['id' => $contact['id']]);
         if (false === $contact_updated) {
-            $error = new WP_Error('obbp_update_failed', __('The company contact could not be linked to its portal account.', 'obydullah-b2b-portal'));
-            if ($created_user) {
-                $error->add_data(['created_user_id' => $user_id]);
-            }
-            return $error;
+            return new WP_Error('obbp_update_failed', __('The company contact could not be linked to its portal account.', 'obydullah-b2b-portal'));
         }
-        return ['user_id' => $user_id, 'created_user_id' => $created_user ? $user_id : 0];
+        return ['user_id' => $user_id];
+    }
+
+    /**
+     * Grants the linked user the customer role and records its company.
+     *
+     * Runs after the approval transaction commits so no user meta is written
+     * when the company update is rolled back.
+     */
+    private static function grant_portal_access($user_id, $company_id)
+    {
+        $user = new WP_User(absint($user_id));
+        if ($user->exists()) {
+            $user->add_role('obbp_customer');
+            update_user_meta($user_id, '_obbp_company_id', absint($company_id));
+        }
     }
 
     private static function contact_id($company_id, $user_id)
@@ -1220,3 +1213,4 @@ final class OBBP_Workflow
         return implode(', ', array_filter([$company['address_line1'], $company['address_line2'], $company['city'], $company['state'], $company['postcode'], $company['country']]));
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

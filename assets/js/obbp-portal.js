@@ -10,3 +10,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('[data-obbp-confirm]');
+    if (trigger && !window.confirm(trigger.getAttribute('data-obbp-confirm'))) {
+        event.preventDefault();
+    }
+});

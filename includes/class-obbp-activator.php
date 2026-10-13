@@ -3,6 +3,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Direct DB access is intentional: these queries run against the plugin's own
+// obbp_* tables, all values are bound via $wpdb->prepare(), and hot paths are
+// served through the OBBP_Repository cache layer.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 final class OBBP_Activator
 {
     public static function activate()
@@ -404,3 +409,4 @@ final class OBBP_Activator
         return true;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

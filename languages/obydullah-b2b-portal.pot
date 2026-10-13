@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-02T11:48:40+00:00\n"
+"POT-Creation-Date: 2026-10-13T11:04:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: obydullah-b2b-portal\n"
@@ -39,7 +39,7 @@ msgid "The B2B Portal database schema could not be installed."
 msgstr ""
 
 #: includes/class-obbp-admin.php:19
-#: includes/class-obbp-portal.php:45
+#: includes/class-obbp-portal.php:51
 msgid "B2B Portal"
 msgstr ""
 
@@ -56,7 +56,7 @@ msgstr ""
 
 #: includes/class-obbp-admin.php:22
 #: includes/class-obbp-csv.php:17
-#: includes/class-obbp-portal.php:69
+#: includes/class-obbp-portal.php:75
 msgid "Catalog"
 msgstr ""
 
@@ -70,7 +70,7 @@ msgstr ""
 #: includes/class-obbp-admin.php:377
 #: includes/class-obbp-admin.php:393
 #: includes/class-obbp-csv.php:17
-#: includes/class-obbp-portal.php:69
+#: includes/class-obbp-portal.php:75
 msgid "RFQs"
 msgstr ""
 
@@ -78,15 +78,15 @@ msgstr ""
 #: includes/class-obbp-admin.php:394
 #: includes/class-obbp-admin.php:409
 #: includes/class-obbp-admin.php:426
-#: includes/class-obbp-portal.php:69
-#: includes/class-obbp-portal.php:314
+#: includes/class-obbp-portal.php:75
+#: includes/class-obbp-portal.php:320
 msgid "Quotes"
 msgstr ""
 
 #: includes/class-obbp-admin.php:26
 #: includes/class-obbp-admin.php:445
 #: includes/class-obbp-admin.php:461
-#: includes/class-obbp-portal.php:69
+#: includes/class-obbp-portal.php:75
 msgid "Purchase Orders"
 msgstr ""
 
@@ -108,38 +108,38 @@ msgstr ""
 #: includes/class-obbp-admin.php:139
 #: includes/class-obbp-admin.php:553
 #: includes/class-obbp-admin.php:641
-#: includes/class-obbp-admin.php:724
-#: includes/class-obbp-admin.php:735
-#: includes/class-obbp-admin.php:814
-#: includes/class-obbp-admin.php:898
-#: includes/class-obbp-portal.php:43
-#: includes/class-obbp-portal.php:103
-#: includes/class-obbp-portal.php:127
-#: includes/class-obbp-portal.php:144
-#: includes/class-obbp-portal.php:195
-#: includes/class-obbp-portal.php:254
-#: includes/class-obbp-portal.php:323
-#: includes/class-obbp-portal.php:447
-#: includes/class-obbp-portal.php:457
-#: includes/class-obbp-portal.php:473
-#: includes/class-obbp-portal.php:482
-#: includes/class-obbp-portal.php:535
+#: includes/class-obbp-admin.php:738
+#: includes/class-obbp-admin.php:749
+#: includes/class-obbp-admin.php:828
+#: includes/class-obbp-admin.php:912
+#: includes/class-obbp-portal.php:49
+#: includes/class-obbp-portal.php:109
+#: includes/class-obbp-portal.php:133
+#: includes/class-obbp-portal.php:150
+#: includes/class-obbp-portal.php:201
+#: includes/class-obbp-portal.php:260
+#: includes/class-obbp-portal.php:329
+#: includes/class-obbp-portal.php:454
+#: includes/class-obbp-portal.php:464
+#: includes/class-obbp-portal.php:480
+#: includes/class-obbp-portal.php:489
+#: includes/class-obbp-portal.php:542
 msgid "Security check failed."
 msgstr ""
 
 #: includes/class-obbp-admin.php:119
 #: includes/class-obbp-admin.php:556
 #: includes/class-obbp-admin.php:644
-#: includes/class-obbp-admin.php:727
-#: includes/class-obbp-admin.php:738
-#: includes/class-obbp-admin.php:817
-#: includes/class-obbp-admin.php:901
-#: includes/class-obbp-portal.php:159
+#: includes/class-obbp-admin.php:741
+#: includes/class-obbp-admin.php:752
+#: includes/class-obbp-admin.php:831
+#: includes/class-obbp-admin.php:915
+#: includes/class-obbp-portal.php:165
 msgid "You are not allowed to perform this action."
 msgstr ""
 
 #: includes/class-obbp-admin.php:127
-#: includes/class-obbp-portal.php:167
+#: includes/class-obbp-portal.php:173
 msgid "Changes saved."
 msgstr ""
 
@@ -152,7 +152,7 @@ msgid "Roles and capabilities synchronized."
 msgstr ""
 
 #: includes/class-obbp-admin.php:172
-#: includes/class-obbp-portal.php:225
+#: includes/class-obbp-portal.php:231
 msgid "Unknown action."
 msgstr ""
 
@@ -191,7 +191,7 @@ msgid "All statuses"
 msgstr ""
 
 #: includes/class-obbp-admin.php:243
-#: includes/class-obbp-portal.php:329
+#: includes/class-obbp-portal.php:335
 msgid "Search"
 msgstr ""
 
@@ -220,9 +220,9 @@ msgstr ""
 #: includes/class-obbp-admin.php:377
 #: includes/class-obbp-admin.php:409
 #: includes/class-obbp-admin.php:445
-#: includes/class-obbp-portal.php:346
-#: includes/class-obbp-portal.php:374
-#: includes/class-obbp-portal.php:401
+#: includes/class-obbp-portal.php:352
+#: includes/class-obbp-portal.php:380
+#: includes/class-obbp-portal.php:407
 msgid "Status"
 msgstr ""
 
@@ -385,6 +385,18 @@ msgid "Job title"
 msgstr ""
 
 #: includes/class-obbp-admin.php:329
+msgid "Portal user"
+msgstr ""
+
+#: includes/class-obbp-admin.php:329
+msgid "&mdash; Not linked &mdash;"
+msgstr ""
+
+#: includes/class-obbp-admin.php:329
+msgid "Link an existing WordPress user to grant portal access. Create users under Users &rarr; Add New; the plugin never creates accounts."
+msgstr ""
+
+#: includes/class-obbp-admin.php:329
 msgid "Permissions"
 msgstr ""
 
@@ -459,16 +471,16 @@ msgstr ""
 #: includes/class-obbp-admin.php:393
 #: includes/class-obbp-admin.php:427
 #: includes/class-obbp-admin.php:463
-#: includes/class-obbp-admin.php:928
+#: includes/class-obbp-admin.php:942
 msgid "Product"
 msgstr ""
 
 #: includes/class-obbp-admin.php:358
 #: includes/class-obbp-admin.php:427
 #: includes/class-obbp-admin.php:463
-#: includes/class-obbp-admin.php:928
-#: includes/class-obbp-portal.php:391
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-admin.php:942
+#: includes/class-obbp-portal.php:397
+#: includes/class-obbp-portal.php:421
 msgid "Unit price"
 msgstr ""
 
@@ -487,8 +499,8 @@ msgstr ""
 #: includes/class-obbp-admin.php:358
 #: includes/class-obbp-admin.php:393
 #: includes/class-obbp-admin.php:427
-#: includes/class-obbp-portal.php:330
-#: includes/class-obbp-portal.php:363
+#: includes/class-obbp-portal.php:336
+#: includes/class-obbp-portal.php:369
 msgid "Note"
 msgstr ""
 
@@ -503,21 +515,21 @@ msgstr ""
 
 #: includes/class-obbp-admin.php:377
 #: includes/class-obbp-admin.php:523
-#: includes/class-obbp-portal.php:346
-#: includes/class-obbp-portal.php:374
+#: includes/class-obbp-portal.php:352
+#: includes/class-obbp-portal.php:380
 msgid "RFQ"
 msgstr ""
 
 #: includes/class-obbp-admin.php:377
 #: includes/class-obbp-admin.php:393
 #: includes/class-obbp-admin.php:427
-#: includes/class-obbp-portal.php:346
+#: includes/class-obbp-portal.php:352
 msgid "Items"
 msgstr ""
 
 #: includes/class-obbp-admin.php:377
-#: includes/class-obbp-portal.php:346
-#: includes/class-obbp-portal.php:391
+#: includes/class-obbp-portal.php:352
+#: includes/class-obbp-portal.php:397
 msgid "Delivery"
 msgstr ""
 
@@ -533,11 +545,11 @@ msgstr ""
 
 #: includes/class-obbp-admin.php:393
 #: includes/class-obbp-admin.php:463
-#: includes/class-obbp-admin.php:928
-#: includes/class-obbp-portal.php:330
-#: includes/class-obbp-portal.php:363
-#: includes/class-obbp-portal.php:391
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-admin.php:942
+#: includes/class-obbp-portal.php:336
+#: includes/class-obbp-portal.php:369
+#: includes/class-obbp-portal.php:397
+#: includes/class-obbp-portal.php:421
 msgid "Quantity"
 msgstr ""
 
@@ -562,8 +574,8 @@ msgid "Close"
 msgstr ""
 
 #: includes/class-obbp-admin.php:409
-#: includes/class-obbp-portal.php:374
-#: includes/class-obbp-portal.php:401
+#: includes/class-obbp-portal.php:380
+#: includes/class-obbp-portal.php:407
 msgid "Quote"
 msgstr ""
 
@@ -571,18 +583,18 @@ msgstr ""
 #: includes/class-obbp-admin.php:429
 #: includes/class-obbp-admin.php:445
 #: includes/class-obbp-admin.php:463
-#: includes/class-obbp-admin.php:928
-#: includes/class-obbp-portal.php:374
-#: includes/class-obbp-portal.php:391
-#: includes/class-obbp-portal.php:401
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-admin.php:942
+#: includes/class-obbp-portal.php:380
+#: includes/class-obbp-portal.php:397
+#: includes/class-obbp-portal.php:407
+#: includes/class-obbp-portal.php:421
 msgid "Total"
 msgstr ""
 
 #: includes/class-obbp-admin.php:409
 #: includes/class-obbp-admin.php:427
-#: includes/class-obbp-portal.php:374
-#: includes/class-obbp-portal.php:390
+#: includes/class-obbp-portal.php:380
+#: includes/class-obbp-portal.php:396
 msgid "Valid until"
 msgstr ""
 
@@ -612,7 +624,7 @@ msgstr ""
 
 #: includes/class-obbp-admin.php:427
 #: includes/class-obbp-admin.php:429
-#: includes/class-obbp-portal.php:391
+#: includes/class-obbp-portal.php:397
 msgid "Discount"
 msgstr ""
 
@@ -653,24 +665,24 @@ msgid "Quote Summary"
 msgstr ""
 
 #: includes/class-obbp-admin.php:429
-#: includes/class-obbp-portal.php:391
+#: includes/class-obbp-portal.php:397
 msgid "Subtotal"
 msgstr ""
 
 #: includes/class-obbp-admin.php:429
-#: includes/class-obbp-admin.php:928
-#: includes/class-obbp-portal.php:391
+#: includes/class-obbp-admin.php:942
+#: includes/class-obbp-portal.php:397
 msgid "Tax"
 msgstr ""
 
 #: includes/class-obbp-admin.php:445
 #: includes/class-obbp-admin.php:523
-#: includes/class-obbp-portal.php:401
+#: includes/class-obbp-portal.php:407
 msgid "PO"
 msgstr ""
 
 #: includes/class-obbp-admin.php:445
-#: includes/class-obbp-portal.php:401
+#: includes/class-obbp-portal.php:407
 msgid "Promised ship"
 msgstr ""
 
@@ -772,8 +784,8 @@ msgid "Choose an active price list."
 msgstr ""
 
 #: includes/class-obbp-admin.php:583
-#: includes/class-obbp-admin.php:765
-#: includes/class-obbp-admin.php:910
+#: includes/class-obbp-admin.php:779
+#: includes/class-obbp-admin.php:924
 msgid "Enter a valid currency code."
 msgstr ""
 
@@ -786,14 +798,14 @@ msgstr ""
 #: includes/class-obbp-admin.php:650
 #: includes/class-obbp-admin.php:669
 #: includes/class-obbp-workflow.php:13
-#: includes/class-obbp-workflow.php:146
-#: includes/class-obbp-workflow.php:344
-#: includes/class-obbp-workflow.php:793
+#: includes/class-obbp-workflow.php:135
+#: includes/class-obbp-workflow.php:333
+#: includes/class-obbp-workflow.php:782
 msgid "Company not found."
 msgstr ""
 
 #: includes/class-obbp-admin.php:624
-#: includes/class-obbp-workflow.php:76
+#: includes/class-obbp-workflow.php:66
 msgid "The company could not be updated."
 msgstr ""
 
@@ -826,129 +838,137 @@ msgstr ""
 msgid "Choose another active primary contact before changing this one."
 msgstr ""
 
-#: includes/class-obbp-admin.php:690
+#: includes/class-obbp-admin.php:688
+msgid "The selected WordPress user does not exist."
+msgstr ""
+
+#: includes/class-obbp-admin.php:695
+msgid "That WordPress user is already linked to another company."
+msgstr ""
+
+#: includes/class-obbp-admin.php:703
 msgid "The primary contact could not be updated."
 msgstr ""
 
-#: includes/class-obbp-admin.php:707
+#: includes/class-obbp-admin.php:721
 msgid "The contact could not be updated."
 msgstr ""
 
-#: includes/class-obbp-admin.php:713
+#: includes/class-obbp-admin.php:727
 msgid "The contact could not be saved."
 msgstr ""
 
-#: includes/class-obbp-admin.php:718
+#: includes/class-obbp-admin.php:732
 msgid "Contact saved."
 msgstr ""
 
-#: includes/class-obbp-admin.php:744
+#: includes/class-obbp-admin.php:758
 msgid "Price list name is required."
 msgstr ""
 
-#: includes/class-obbp-admin.php:748
-#: includes/class-obbp-admin.php:822
+#: includes/class-obbp-admin.php:762
+#: includes/class-obbp-admin.php:836
 msgid "Price list not found."
 msgstr ""
 
-#: includes/class-obbp-admin.php:756
+#: includes/class-obbp-admin.php:770
 msgid "Enter valid price list dates."
 msgstr ""
 
-#: includes/class-obbp-admin.php:761
+#: includes/class-obbp-admin.php:775
 msgid "The valid-from date must be before the valid-to date."
 msgstr ""
 
-#: includes/class-obbp-admin.php:770
+#: includes/class-obbp-admin.php:784
 #: includes/class-obbp-csv.php:413
 msgid "A default price list must be active."
 msgstr ""
 
-#: includes/class-obbp-admin.php:790
+#: includes/class-obbp-admin.php:804
 #: includes/class-obbp-csv.php:431
 msgid "The default price list could not be updated."
 msgstr ""
 
-#: includes/class-obbp-admin.php:797
-#: includes/class-obbp-admin.php:888
+#: includes/class-obbp-admin.php:811
+#: includes/class-obbp-admin.php:902
 msgid "The price list could not be updated."
 msgstr ""
 
-#: includes/class-obbp-admin.php:803
+#: includes/class-obbp-admin.php:817
 msgid "The price list could not be saved."
 msgstr ""
 
-#: includes/class-obbp-admin.php:808
+#: includes/class-obbp-admin.php:822
 msgid "Price list saved."
 msgstr ""
 
-#: includes/class-obbp-admin.php:848
+#: includes/class-obbp-admin.php:862
 msgid "A price list item refers to an invalid product."
 msgstr ""
 
-#: includes/class-obbp-admin.php:852
+#: includes/class-obbp-admin.php:866
 msgid "A product may appear only once in a price list."
 msgstr ""
 
-#: includes/class-obbp-admin.php:860
+#: includes/class-obbp-admin.php:874
 msgid "Enter valid nonnegative prices, minimum quantities, and quantity steps."
 msgstr ""
 
-#: includes/class-obbp-admin.php:876
+#: includes/class-obbp-admin.php:890
 msgid "A price list item could not be saved."
 msgstr ""
 
-#: includes/class-obbp-admin.php:892
+#: includes/class-obbp-admin.php:906
 msgid "Prices saved."
 msgstr ""
 
-#: includes/class-obbp-admin.php:907
+#: includes/class-obbp-admin.php:921
 msgid "Enter a two-letter country code."
 msgstr ""
 
-#: includes/class-obbp-admin.php:922
+#: includes/class-obbp-admin.php:936
 msgid "Settings saved."
 msgstr ""
 
-#: includes/class-obbp-admin.php:935
+#: includes/class-obbp-admin.php:949
 msgid "When"
 msgstr ""
 
-#: includes/class-obbp-admin.php:935
+#: includes/class-obbp-admin.php:949
 msgid "Actor"
 msgstr ""
 
-#: includes/class-obbp-admin.php:935
+#: includes/class-obbp-admin.php:949
 msgid "Object"
 msgstr ""
 
-#: includes/class-obbp-admin.php:935
+#: includes/class-obbp-admin.php:949
 msgid "Action"
 msgstr ""
 
-#: includes/class-obbp-admin.php:935
+#: includes/class-obbp-admin.php:949
 msgid "Message"
 msgstr ""
 
-#: includes/class-obbp-admin.php:935
+#: includes/class-obbp-admin.php:949
 msgid "No activity found."
 msgstr ""
 
-#: includes/class-obbp-admin.php:970
+#: includes/class-obbp-admin.php:984
 msgid "Yes"
 msgstr ""
 
-#: includes/class-obbp-admin.php:988
+#: includes/class-obbp-admin.php:1002
 msgid "You are not allowed to view this page."
 msgstr ""
 
-#: includes/class-obbp-admin.php:994
-#: includes/class-obbp-portal.php:512
+#: includes/class-obbp-admin.php:1008
+#: includes/class-obbp-portal.php:519
 msgid "Record not found."
 msgstr ""
 
 #: includes/class-obbp-catalog.php:19
-#: includes/class-obbp-portal.php:329
+#: includes/class-obbp-portal.php:335
 msgid "Products & Services"
 msgstr ""
 
@@ -1089,7 +1109,7 @@ msgid "CSV file"
 msgstr ""
 
 #: includes/class-obbp-csv.php:17
-msgid "Apply company status from the CSV. This runs each change through the approval workflow, so it can provision portal logins and send status emails."
+msgid "Apply company status from the CSV. This runs each change through the approval workflow, so it can grant portal access to linked users and send status emails."
 msgstr ""
 
 #: includes/class-obbp-csv.php:17
@@ -1117,14 +1137,14 @@ msgid "Activity log"
 msgstr ""
 
 #: includes/class-obbp-csv.php:17
-#: includes/class-obbp-portal.php:390
+#: includes/class-obbp-portal.php:396
 msgid "Download CSV"
 msgstr ""
 
 #: includes/class-obbp-csv.php:42
 #: includes/class-obbp-csv.php:142
-#: includes/class-obbp-portal.php:109
-#: includes/class-obbp-portal.php:251
+#: includes/class-obbp-portal.php:115
+#: includes/class-obbp-portal.php:257
 msgid "Access denied."
 msgstr ""
 
@@ -1370,344 +1390,349 @@ msgstr ""
 msgid "Adding…"
 msgstr ""
 
-#: includes/class-obbp-portal.php:67
+#: includes/class-obbp-portal.php:73
 msgid "Customer workspace"
 msgstr ""
 
-#: includes/class-obbp-portal.php:67
+#: includes/class-obbp-portal.php:73
 msgid "Signed in for"
 msgstr ""
 
-#: includes/class-obbp-portal.php:68
+#: includes/class-obbp-portal.php:74
 msgid "Portal navigation"
 msgstr ""
 
-#: includes/class-obbp-portal.php:69
+#: includes/class-obbp-portal.php:75
 msgid "Overview"
 msgstr ""
 
-#: includes/class-obbp-portal.php:204
+#: includes/class-obbp-portal.php:210
 msgid "Item added to your RFQ."
 msgstr ""
 
-#: includes/class-obbp-portal.php:223
+#: includes/class-obbp-portal.php:229
 msgid "Items copied to a new draft RFQ."
 msgstr ""
 
-#: includes/class-obbp-portal.php:259
+#: includes/class-obbp-portal.php:265
 msgid "Invalid download."
 msgstr ""
 
-#: includes/class-obbp-portal.php:263
+#: includes/class-obbp-portal.php:269
 msgid "Quote not found."
 msgstr ""
 
-#: includes/class-obbp-portal.php:289
+#: includes/class-obbp-portal.php:295
 msgid "Secure customer access"
 msgstr ""
 
-#: includes/class-obbp-portal.php:289
+#: includes/class-obbp-portal.php:295
 msgid "Sign in to your B2B portal"
 msgstr ""
 
-#: includes/class-obbp-portal.php:289
+#: includes/class-obbp-portal.php:295
 msgid "Browse products, request quotations, and track purchase orders."
 msgstr ""
 
-#: includes/class-obbp-portal.php:289
+#: includes/class-obbp-portal.php:295
 msgid "Email or username"
 msgstr ""
 
-#: includes/class-obbp-portal.php:289
+#: includes/class-obbp-portal.php:295
 msgid "Password"
 msgstr ""
 
-#: includes/class-obbp-portal.php:289
+#: includes/class-obbp-portal.php:295
 msgid "Sign In"
 msgstr ""
 
-#: includes/class-obbp-portal.php:289
+#: includes/class-obbp-portal.php:295
 msgid "Forgot password?"
 msgstr ""
 
-#: includes/class-obbp-portal.php:298
+#: includes/class-obbp-portal.php:304
 msgid "Account access"
 msgstr ""
 
-#: includes/class-obbp-portal.php:298
+#: includes/class-obbp-portal.php:304
 msgid "Portal access is not available"
 msgstr ""
 
-#: includes/class-obbp-portal.php:298
+#: includes/class-obbp-portal.php:304
 msgid "Your account must be linked to an approved company. Contact the supplier if you need access."
 msgstr ""
 
-#: includes/class-obbp-portal.php:298
+#: includes/class-obbp-portal.php:304
 msgid "Sign Out"
 msgstr ""
 
-#: includes/class-obbp-portal.php:313
+#: includes/class-obbp-portal.php:319
 msgid "Procurement workspace"
 msgstr ""
 
-#: includes/class-obbp-portal.php:313
+#: includes/class-obbp-portal.php:319
 msgid "Good to see you"
 msgstr ""
 
-#: includes/class-obbp-portal.php:313
+#: includes/class-obbp-portal.php:319
 msgid "Create a request, compare a quote, and follow fulfillment from one place."
 msgstr ""
 
-#: includes/class-obbp-portal.php:313
+#: includes/class-obbp-portal.php:319
 msgid "Start a New RFQ"
 msgstr ""
 
-#: includes/class-obbp-portal.php:314
+#: includes/class-obbp-portal.php:320
 msgid "Total RFQs"
 msgstr ""
 
-#: includes/class-obbp-portal.php:314
+#: includes/class-obbp-portal.php:320
 msgid "Purchase orders"
 msgstr ""
 
-#: includes/class-obbp-portal.php:315
+#: includes/class-obbp-portal.php:321
 msgid "Recent requests"
 msgstr ""
 
-#: includes/class-obbp-portal.php:315
+#: includes/class-obbp-portal.php:321
 msgid "View all"
 msgstr ""
 
-#: includes/class-obbp-portal.php:329
+#: includes/class-obbp-portal.php:335
 msgid "Approved catalog"
 msgstr ""
 
-#: includes/class-obbp-portal.php:329
+#: includes/class-obbp-portal.php:335
 msgid "Add one or many items to a draft RFQ."
 msgstr ""
 
-#: includes/class-obbp-portal.php:329
+#: includes/class-obbp-portal.php:335
 msgid "Search catalog"
 msgstr ""
 
-#: includes/class-obbp-portal.php:330
+#: includes/class-obbp-portal.php:336
 msgid "per"
 msgstr ""
 
-#: includes/class-obbp-portal.php:330
+#: includes/class-obbp-portal.php:336
 msgid "Optional specification"
 msgstr ""
 
-#: includes/class-obbp-portal.php:330
+#: includes/class-obbp-portal.php:336
 msgid "Add to RFQ"
 msgstr ""
 
-#: includes/class-obbp-portal.php:330
+#: includes/class-obbp-portal.php:336
 msgid "No catalog items found"
 msgstr ""
 
-#: includes/class-obbp-portal.php:330
+#: includes/class-obbp-portal.php:336
 msgid "Try a different search or ask the supplier to add a product."
 msgstr ""
 
-#: includes/class-obbp-portal.php:339
+#: includes/class-obbp-portal.php:345
 msgid "Requests"
 msgstr ""
 
-#: includes/class-obbp-portal.php:339
+#: includes/class-obbp-portal.php:345
 msgid "Request for Quotations"
 msgstr ""
 
-#: includes/class-obbp-portal.php:339
+#: includes/class-obbp-portal.php:345
 msgid "Track drafts, submissions, and quote outcomes."
 msgstr ""
 
-#: includes/class-obbp-portal.php:339
+#: includes/class-obbp-portal.php:345
 msgid "New RFQ"
 msgstr ""
 
-#: includes/class-obbp-portal.php:346
+#: includes/class-obbp-portal.php:352
 msgid "Updated"
 msgstr ""
 
-#: includes/class-obbp-portal.php:346
+#: includes/class-obbp-portal.php:352
 msgid "No requests found."
 msgstr ""
 
-#: includes/class-obbp-portal.php:361
+#: includes/class-obbp-portal.php:367
 msgid "Request Details"
 msgstr ""
 
-#: includes/class-obbp-portal.php:362
+#: includes/class-obbp-portal.php:368
 msgid "Request Information"
 msgstr ""
 
-#: includes/class-obbp-portal.php:362
+#: includes/class-obbp-portal.php:368
 msgid "Subject"
 msgstr ""
 
-#: includes/class-obbp-portal.php:362
+#: includes/class-obbp-portal.php:368
 msgid "Requested delivery date"
 msgstr ""
 
-#: includes/class-obbp-portal.php:362
+#: includes/class-obbp-portal.php:368
 msgid "Notes"
 msgstr ""
 
-#: includes/class-obbp-portal.php:362
+#: includes/class-obbp-portal.php:368
 msgid "Save Request"
 msgstr ""
 
-#: includes/class-obbp-portal.php:363
+#: includes/class-obbp-portal.php:369
 msgid "Requested Items"
 msgstr ""
 
-#: includes/class-obbp-portal.php:363
+#: includes/class-obbp-portal.php:369
 msgid "Add more items"
 msgstr ""
 
-#: includes/class-obbp-portal.php:363
+#: includes/class-obbp-portal.php:369
 msgid "No items in this request."
 msgstr ""
 
-#: includes/class-obbp-portal.php:363
+#: includes/class-obbp-portal.php:369
 msgid "Update"
 msgstr ""
 
-#: includes/class-obbp-portal.php:363
+#: includes/class-obbp-portal.php:369
 msgid "Remove this item?"
 msgstr ""
 
-#: includes/class-obbp-portal.php:363
+#: includes/class-obbp-portal.php:369
 msgid "Remove"
 msgstr ""
 
-#: includes/class-obbp-portal.php:364
+#: includes/class-obbp-portal.php:370
 msgid "Ready to request a price?"
 msgstr ""
 
-#: includes/class-obbp-portal.php:364
+#: includes/class-obbp-portal.php:370
 msgid "Submit RFQ"
 msgstr ""
 
-#: includes/class-obbp-portal.php:365
+#: includes/class-obbp-portal.php:371
 msgid "Reorder These Items"
 msgstr ""
 
-#: includes/class-obbp-portal.php:374
+#: includes/class-obbp-portal.php:380
 msgid "Offers"
 msgstr ""
 
-#: includes/class-obbp-portal.php:374
+#: includes/class-obbp-portal.php:380
 msgid "Quotations"
 msgstr ""
 
-#: includes/class-obbp-portal.php:374
+#: includes/class-obbp-portal.php:380
 msgid "Review pricing, print, download, and respond."
 msgstr ""
 
-#: includes/class-obbp-portal.php:374
+#: includes/class-obbp-portal.php:380
 msgid "No quotations found."
 msgstr ""
 
-#: includes/class-obbp-portal.php:390
+#: includes/class-obbp-portal.php:396
 msgid "Quotation"
 msgstr ""
 
-#: includes/class-obbp-portal.php:390
+#: includes/class-obbp-portal.php:396
+#: includes/class-obbp-portal.php:438
 msgid "Print"
 msgstr ""
 
-#: includes/class-obbp-portal.php:391
+#: includes/class-obbp-portal.php:397
 msgid "Prepared for"
 msgstr ""
 
-#: includes/class-obbp-portal.php:391
+#: includes/class-obbp-portal.php:397
 msgid "Quote total"
 msgstr ""
 
-#: includes/class-obbp-portal.php:391
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-portal.php:397
+#: includes/class-obbp-portal.php:421
 msgid "Item"
 msgstr ""
 
-#: includes/class-obbp-portal.php:392
+#: includes/class-obbp-portal.php:398
 msgid "Accept quotation"
 msgstr ""
 
-#: includes/class-obbp-portal.php:392
+#: includes/class-obbp-portal.php:398
 msgid "Confirm the quantities you want to order"
 msgstr ""
 
-#: includes/class-obbp-portal.php:392
+#: includes/class-obbp-portal.php:398
 msgid "Set a quantity to zero to decline that item. Acceptance creates a draft purchase order."
 msgstr ""
 
-#: includes/class-obbp-portal.php:392
+#: includes/class-obbp-portal.php:398
 msgid "Accept & Create Order"
 msgstr ""
 
-#: includes/class-obbp-portal.php:392
+#: includes/class-obbp-portal.php:398
 msgid "Reason for rejection"
 msgstr ""
 
-#: includes/class-obbp-portal.php:392
+#: includes/class-obbp-portal.php:398
 msgid "Reject Quotation"
 msgstr ""
 
-#: includes/class-obbp-portal.php:392
+#: includes/class-obbp-portal.php:398
 msgid "This quotation requires a contact with quote approval permission."
 msgstr ""
 
-#: includes/class-obbp-portal.php:401
+#: includes/class-obbp-portal.php:407
 msgid "Fulfillment"
 msgstr ""
 
-#: includes/class-obbp-portal.php:401
+#: includes/class-obbp-portal.php:407
 msgid "Purchase Order History"
 msgstr ""
 
-#: includes/class-obbp-portal.php:401
+#: includes/class-obbp-portal.php:407
 msgid "Review issued orders and fulfillment status."
 msgstr ""
 
-#: includes/class-obbp-portal.php:401
+#: includes/class-obbp-portal.php:407
 msgid "No purchase orders found."
 msgstr ""
 
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-portal.php:421
 msgid "Purchase Order"
 msgstr ""
 
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-portal.php:421
 msgid "Ship to"
 msgstr ""
 
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-portal.php:421
 msgid "Order total"
 msgstr ""
 
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-portal.php:421
 msgid "Please confirm receipt of this purchase order."
 msgstr ""
 
-#: includes/class-obbp-portal.php:415
+#: includes/class-obbp-portal.php:421
 msgid "Acknowledge Order"
 msgstr ""
 
-#: includes/class-obbp-portal.php:431
+#: includes/class-obbp-portal.php:438
 msgid "Thank you for your business."
 msgstr ""
 
-#: includes/class-obbp-portal.php:488
+#: includes/class-obbp-portal.php:438
+msgid "Return to portal"
+msgstr ""
+
+#: includes/class-obbp-portal.php:495
 msgid "Previous"
 msgstr ""
 
-#: includes/class-obbp-portal.php:488
+#: includes/class-obbp-portal.php:495
 msgid "Next"
 msgstr ""
 
-#: includes/class-obbp-portal.php:512
+#: includes/class-obbp-portal.php:519
 msgid "Return to overview"
 msgstr ""
 
@@ -1827,7 +1852,7 @@ msgid "That company status transition is not allowed."
 msgstr ""
 
 #: includes/class-obbp-workflow.php:25
-#: includes/class-obbp-workflow.php:1018
+#: includes/class-obbp-workflow.php:1007
 msgid "Please provide a reason."
 msgstr ""
 
@@ -1839,349 +1864,349 @@ msgstr ""
 msgid "An active primary contact is required before approval."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:83
+#: includes/class-obbp-workflow.php:69
 msgid "The company status could not be committed."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:94
+#: includes/class-obbp-workflow.php:83
 msgid "Your company is not approved for portal access."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:97
+#: includes/class-obbp-workflow.php:86
 msgid "You are not linked to this company."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:113
+#: includes/class-obbp-workflow.php:102
 msgid "The RFQ could not be created."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:117
+#: includes/class-obbp-workflow.php:106
 msgid "The RFQ reference could not be created."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:128
+#: includes/class-obbp-workflow.php:117
 msgid "Company access is required."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:132
+#: includes/class-obbp-workflow.php:121
 msgid "This product is not available."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:136
-#: includes/class-obbp-workflow.php:270
+#: includes/class-obbp-workflow.php:125
+#: includes/class-obbp-workflow.php:259
 msgid "This product is not priced in your company currency."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:165
-#: includes/class-obbp-workflow.php:286
+#: includes/class-obbp-workflow.php:154
+#: includes/class-obbp-workflow.php:275
 msgid "The RFQ item could not be updated."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:181
+#: includes/class-obbp-workflow.php:170
 msgid "The RFQ item could not be added."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:195
-#: includes/class-obbp-workflow.php:211
+#: includes/class-obbp-workflow.php:184
+#: includes/class-obbp-workflow.php:200
 msgid "This RFQ can no longer be edited."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:199
+#: includes/class-obbp-workflow.php:188
 msgid "Enter a valid delivery date."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:216
-#: includes/class-obbp-workflow.php:584
-#: includes/class-obbp-workflow.php:725
+#: includes/class-obbp-workflow.php:205
+#: includes/class-obbp-workflow.php:573
+#: includes/class-obbp-workflow.php:714
 msgid "The RFQ could not be updated."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:228
+#: includes/class-obbp-workflow.php:217
 msgid "Only a draft RFQ can be submitted."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:234
+#: includes/class-obbp-workflow.php:223
 msgid "This RFQ has already been submitted."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:239
+#: includes/class-obbp-workflow.php:228
 msgid "Add at least one item before submitting."
 msgstr ""
 
 #. translators: %s: product name from the RFQ line.
-#: includes/class-obbp-workflow.php:247
+#: includes/class-obbp-workflow.php:236
 #, php-format
 msgid "%s no longer meets the current order quantity rules. Please review the quantity and try again."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:253
+#: includes/class-obbp-workflow.php:242
 msgid "The RFQ could not be submitted."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:266
-#: includes/class-obbp-workflow.php:281
+#: includes/class-obbp-workflow.php:255
+#: includes/class-obbp-workflow.php:270
 msgid "The RFQ item cannot be edited."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:298
-#: includes/class-obbp-workflow.php:305
+#: includes/class-obbp-workflow.php:287
+#: includes/class-obbp-workflow.php:294
 msgid "The RFQ item cannot be removed."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:310
+#: includes/class-obbp-workflow.php:299
 msgid "The RFQ item could not be removed."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:322
-#: includes/class-obbp-workflow.php:963
+#: includes/class-obbp-workflow.php:311
+#: includes/class-obbp-workflow.php:952
 msgid "RFQ not found."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:325
-#: includes/class-obbp-workflow.php:331
+#: includes/class-obbp-workflow.php:314
+#: includes/class-obbp-workflow.php:320
 msgid "This RFQ cannot be quoted in its current state."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:339
+#: includes/class-obbp-workflow.php:328
 msgid "This RFQ already has an active quote."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:360
+#: includes/class-obbp-workflow.php:349
 msgid "The quote could not be created."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:364
+#: includes/class-obbp-workflow.php:353
 msgid "The quote reference could not be created."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:376
+#: includes/class-obbp-workflow.php:365
 msgid "A product is not priced in the company currency."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:397
+#: includes/class-obbp-workflow.php:386
 msgid "A quote item could not be created."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:403
+#: includes/class-obbp-workflow.php:392
 msgid "The RFQ has no valid quote items."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:415
-#: includes/class-obbp-workflow.php:469
+#: includes/class-obbp-workflow.php:404
+#: includes/class-obbp-workflow.php:458
 msgid "Only draft quotes can be changed."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:423
+#: includes/class-obbp-workflow.php:412
 msgid "Enter a valid quote expiry date."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:463
+#: includes/class-obbp-workflow.php:452
 msgid "Add at least one valid quote item."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:486
+#: includes/class-obbp-workflow.php:475
 msgid "The quote could not be updated."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:491
+#: includes/class-obbp-workflow.php:480
 msgid "A quote item could not be saved."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:496
+#: includes/class-obbp-workflow.php:485
 msgid "The quote totals could not be calculated."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:546
+#: includes/class-obbp-workflow.php:535
 msgid "Only draft quotes can be sent."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:549
-#: includes/class-obbp-workflow.php:568
+#: includes/class-obbp-workflow.php:538
+#: includes/class-obbp-workflow.php:557
 msgid "An expired quote cannot be sent."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:558
+#: includes/class-obbp-workflow.php:547
 msgid "The RFQ cannot be quoted in its current state."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:564
+#: includes/class-obbp-workflow.php:553
 msgid "This quote has already been sent."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:573
+#: includes/class-obbp-workflow.php:562
 msgid "Add at least one quote item."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:578
+#: includes/class-obbp-workflow.php:567
 msgid "The quote could not be sent."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:630
-#: includes/class-obbp-workflow.php:634
+#: includes/class-obbp-workflow.php:619
+#: includes/class-obbp-workflow.php:623
 msgid "You are not allowed to accept this quote."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:643
-#: includes/class-obbp-workflow.php:657
+#: includes/class-obbp-workflow.php:632
+#: includes/class-obbp-workflow.php:646
 msgid "This RFQ is no longer open for quote acceptance."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:649
+#: includes/class-obbp-workflow.php:638
 msgid "This quote is not open for acceptance."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:653
-#: includes/class-obbp-workflow.php:754
+#: includes/class-obbp-workflow.php:642
+#: includes/class-obbp-workflow.php:743
 msgid "This quote has expired."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:662
+#: includes/class-obbp-workflow.php:651
 msgid "Another purchase order already exists for this RFQ."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:673
+#: includes/class-obbp-workflow.php:662
 msgid "Enter a quantity for every quote item."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:678
-#: includes/class-obbp-workflow.php:683
+#: includes/class-obbp-workflow.php:667
+#: includes/class-obbp-workflow.php:672
 msgid "Enter valid accepted quantities for every item."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:695
+#: includes/class-obbp-workflow.php:684
 msgid "Accept at least one item."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:700
+#: includes/class-obbp-workflow.php:689
 msgid "Accepted quantities could not be saved."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:714
-#: includes/class-obbp-workflow.php:759
+#: includes/class-obbp-workflow.php:703
+#: includes/class-obbp-workflow.php:748
 msgid "The quote response could not be saved."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:740
+#: includes/class-obbp-workflow.php:729
 msgid "You are not allowed to reject this quote."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:744
+#: includes/class-obbp-workflow.php:733
 msgid "Please provide a rejection reason."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:750
+#: includes/class-obbp-workflow.php:739
 msgid "This quote is not open for a response."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:785
+#: includes/class-obbp-workflow.php:774
 msgid "The quote is not accepted."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:789
+#: includes/class-obbp-workflow.php:778
 msgid "A purchase order already exists for this quote."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:808
+#: includes/class-obbp-workflow.php:797
 msgid "The purchase order could not be created."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:812
+#: includes/class-obbp-workflow.php:801
 msgid "The purchase order reference could not be created."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:850
+#: includes/class-obbp-workflow.php:839
 msgid "A purchase order item could not be saved."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:855
+#: includes/class-obbp-workflow.php:844
 msgid "The accepted quote has no purchasable items."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:862
+#: includes/class-obbp-workflow.php:851
 msgid "The purchase order total could not be saved."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:873
+#: includes/class-obbp-workflow.php:862
 msgid "Only draft purchase orders can be issued."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:879
+#: includes/class-obbp-workflow.php:868
 msgid "This purchase order has already been issued."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:884
+#: includes/class-obbp-workflow.php:873
 msgid "The purchase order could not be issued."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:898
-#: includes/class-obbp-workflow.php:904
+#: includes/class-obbp-workflow.php:887
+#: includes/class-obbp-workflow.php:893
 msgid "This purchase order cannot be acknowledged."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:909
+#: includes/class-obbp-workflow.php:898
 msgid "The purchase order could not be acknowledged."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:931
+#: includes/class-obbp-workflow.php:920
 msgid "That purchase order transition is not allowed."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:937
+#: includes/class-obbp-workflow.php:926
 msgid "That purchase order transition is no longer allowed."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:951
+#: includes/class-obbp-workflow.php:940
 msgid "The purchase order status could not be saved."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:971
+#: includes/class-obbp-workflow.php:960
 msgid "None of the previous items are currently available."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:994
+#: includes/class-obbp-workflow.php:983
 msgid "A reordered item could not be added."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:1014
+#: includes/class-obbp-workflow.php:1003
 msgid "That RFQ transition is not allowed."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:1024
+#: includes/class-obbp-workflow.php:1013
 msgid "That RFQ transition is no longer allowed."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:1037
+#: includes/class-obbp-workflow.php:1026
 msgid "The RFQ status could not be saved."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:1044
+#: includes/class-obbp-workflow.php:1033
 msgid "Open quotes could not be cancelled."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:1105
+#: includes/class-obbp-workflow.php:1097
+msgid "Link this contact to an existing WordPress user before approving the company."
+msgstr ""
+
+#: includes/class-obbp-workflow.php:1102
 msgid "This contact is already linked to another company."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:1119
-msgid "The portal account could not be created."
-msgstr ""
-
-#: includes/class-obbp-workflow.php:1130
+#: includes/class-obbp-workflow.php:1106
 msgid "The company contact could not be linked to its portal account."
 msgstr ""
 
-#: includes/class-obbp-workflow.php:1176
+#: includes/class-obbp-workflow.php:1163
 msgid "Enter a valid quantity."
 msgstr ""
 
 #. translators: %s: the minimum order quantity for this product.
-#: includes/class-obbp-workflow.php:1183
+#: includes/class-obbp-workflow.php:1170
 #, php-format
 msgid "The minimum quantity is %s."
 msgstr ""
 
 #. translators: %s: the quantity increment this product must be ordered in.
-#: includes/class-obbp-workflow.php:1189
+#: includes/class-obbp-workflow.php:1176
 #, php-format
 msgid "Use increments of %s."
 msgstr ""

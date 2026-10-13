@@ -3,9 +3,110 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// This is the plugin's single data-access layer for its own obbp_* tables.
+// Reads that benefit from caching go through cache_get()/cache_set() below;
+// writes (insert/update/delete) are inherently uncached. All values are bound
+// via $wpdb->prepare().
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 final class OBBP_Repository
 {
+    private const CACHE_GROUP = 'obbp';
+
+    /** Freshness backstop for derived rows (pricing, price lists, facets). */
+    private const CACHE_TTL_STABLE = 900;
+
+    /** Dashboard counters are allowed to lag by up to a minute. */
+    private const CACHE_TTL_COUNTS = 60;
+
+    /** Safety net for membership lookups in case a flush site is ever missed. */
+    private const CACHE_TTL_ACCESS = 300;
+
     private static string $request_id = '';
+
+    public static function cache_get($key)
+    {
+        return wp_cache_get($key, self::CACHE_GROUP);
+    }
+
+    public static function cache_set($key, $value, $ttl = 0)
+    {
+        wp_cache_set($key, $value, self::CACHE_GROUP, $ttl);
+    }
+
+    public static function cache_delete($key)
+    {
+        wp_cache_delete($key, self::CACHE_GROUP);
+    }
+
+    private static function revision($key)
+    {
+        $revision = (int) self::cache_get($key);
+        return $revision > 0 ? $revision : 1;
+    }
+
+    private static function bump_revision($key)
+    {
+        self::cache_set($key, self::revision($key) + 1);
+    }
+
+    /**
+     * Drops every cached membership lookup that depends on a company.
+     *
+     * Runs on company/contact writes (rare) so the portal access checks never
+     * serve stale records after an approve, suspend, or link change. Enumerates
+     * the company owner plus every linked contact, and also clears any ids
+     * passed in $extra_user_ids (e.g. the user a contact used to point at).
+     */
+    public static function flush_company_access($company_id, $extra_user_ids = [])
+    {
+        global $wpdb;
+        $company_id = absint($company_id);
+        $user_ids = array_map('absint', (array) $extra_user_ids);
+        $owner = (int) $wpdb->get_var($wpdb->prepare('SELECT user_id FROM %i WHERE id = %d LIMIT 1', self::table('companies'), $company_id));
+        if ($owner) {
+            $user_ids[] = $owner;
+        }
+        $contact_user_ids = $wpdb->get_col($wpdb->prepare('SELECT user_id FROM %i WHERE company_id = %d AND user_id > 0', self::table('company_contacts'), $company_id));
+        foreach ($contact_user_ids as $user_id) {
+            $user_ids[] = (int) $user_id;
+        }
+        foreach (array_unique($user_ids) as $user_id) {
+            if ($user_id > 0) {
+                self::cache_delete('cfu:' . $user_id);
+                self::cache_delete('owns:' . $company_id . ':' . $user_id);
+            }
+        }
+    }
+
+    /** Invalidates the cached price for a single product after meta or items change. */
+    public static function flush_product_prices($product_id)
+    {
+        self::bump_revision('price_prod_rev:' . absint($product_id));
+    }
+
+    /** Invalidates pricing decisions that depend on the price lists themselves. */
+    public static function flush_price_list($list_id)
+    {
+        self::cache_delete('default_price_list');
+        self::bump_revision('lists_rev');
+    }
+
+    /** Invalidates pricing for every product priced in a list whose items changed. */
+    public static function flush_price_list_items($list_id)
+    {
+        global $wpdb;
+        $product_ids = $wpdb->get_col($wpdb->prepare('SELECT product_id FROM %i WHERE price_list_id = %d', self::table('price_list_items'), $list_id));
+        foreach ($product_ids as $product_id) {
+            self::bump_revision('price_prod_rev:' . absint($product_id));
+        }
+    }
+
+    /** Invalidates pricing decisions that depend on the default currency setting. */
+    public static function flush_settings()
+    {
+        self::bump_revision('settings_rev');
+    }
 
     public static function table($name)
     {
@@ -89,15 +190,15 @@ final class OBBP_Repository
         }
         $where_sql = $clauses ? 'WHERE ' . implode(' AND ', $clauses) : '';
 
-        $order_by = in_array($args['orderby'] ?? 'id', $allowed_columns, true) ? $args['orderby'] : 'id';
+        $orderby = $args['orderby'] ?? 'id';
+        $order_by = in_array($orderby, $allowed_columns, true) ? $orderby : 'id';
         $order = 'ASC' === strtoupper($args['order'] ?? 'DESC') ? 'ASC' : 'DESC';
 
         $limit = min(1000, max(0, absint($args['limit'] ?? 100)));
         $offset = max(0, absint($args['offset'] ?? 0));
 
         $sql = "SELECT * FROM %i {$where_sql} ORDER BY `{$order_by}` {$order} LIMIT %d OFFSET %d";
-        $prepared = $wpdb->prepare($sql, array_merge([self::table($table)], $params, [$limit, $offset]));
-        return $wpdb->get_results($prepared, ARRAY_A);
+        return $wpdb->get_results($wpdb->prepare($sql, array_merge([self::table($table)], $params, [$limit, $offset])), ARRAY_A); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prepared custom-table query
     }
     // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
@@ -176,6 +277,12 @@ final class OBBP_Repository
 
     public static function company_for_user($user_id)
     {
+        $user_id = absint($user_id);
+        $key = 'cfu:' . $user_id;
+        $cached = self::cache_get($key);
+        if (false !== $cached) {
+            return $cached ?: null;
+        }
         global $wpdb;
         $ids = [];
         $owner = $wpdb->get_var($wpdb->prepare("SELECT id FROM %i WHERE user_id = %d AND deleted_at IS NULL AND status = 'approved' LIMIT 1", self::table('companies'), $user_id));
@@ -187,7 +294,9 @@ final class OBBP_Repository
             $ids[] = (int) $contact;
         }
         $ids = array_values(array_unique($ids));
-        return count($ids) === 1 ? self::row('companies', $ids[0]) : null;
+        $company = count($ids) === 1 ? self::row('companies', $ids[0]) : null;
+        self::cache_set($key, $company ?: 0, self::CACHE_TTL_ACCESS);
+        return $company;
     }
 
     public static function can_access_portal($user_id = 0)
@@ -202,33 +311,60 @@ final class OBBP_Repository
 
     public static function company_owns_user($company_id, $user_id = 0)
     {
-        global $wpdb;
+        $company_id = absint($company_id);
         $user_id = $user_id ? absint($user_id) : get_current_user_id();
+        $key = 'owns:' . $company_id . ':' . $user_id;
+        $cached = self::cache_get($key);
+        if (false !== $cached) {
+            return (bool) $cached;
+        }
+        global $wpdb;
         $companies = self::table('companies');
         $contacts = self::table('company_contacts');
         $owner = $wpdb->get_var($wpdb->prepare("SELECT id FROM %i WHERE id = %d AND user_id = %d AND status = 'approved' AND deleted_at IS NULL LIMIT 1", $companies, $company_id, $user_id));
         $contact = $wpdb->get_var($wpdb->prepare("SELECT c.id FROM %i c INNER JOIN %i co ON co.id = c.company_id WHERE c.company_id = %d AND c.user_id = %d AND c.status = 'active' AND c.deleted_at IS NULL AND co.status = 'approved' AND co.deleted_at IS NULL LIMIT 1", $contacts, $companies, $company_id, $user_id));
-        return !empty($owner) || !empty($contact);
+        $owns = !empty($owner) || !empty($contact);
+        self::cache_set($key, $owns ? 1 : 0, self::CACHE_TTL_ACCESS);
+        return $owns;
     }
 
     public static function price_for_product($product_id, $company)
     {
-        global $wpdb;
+        $product_id = absint($product_id);
+        $company = is_array($company) ? $company : [];
         $settings = get_option(OBBP_OPTION_SETTINGS, []);
+        $company_list = absint($company['price_list_id'] ?? 0);
         $company_currency = strtoupper(trim((string) ($company['currency'] ?? '')));
-        $company_currency = $company_currency ?: strtoupper((string) ($settings['default_currency'] ?? 'BDT'));
+        $default_currency = strtoupper((string) ($settings['default_currency'] ?? 'BDT'));
+
+        $key = 'price:' . md5(serialize([
+            'pid' => $product_id,
+            'prod_rev' => self::revision('price_prod_rev:' . $product_id),
+            'lists_rev' => self::revision('lists_rev'),
+            'settings_rev' => self::revision('settings_rev'),
+            'company_list' => $company_list,
+            'company_currency' => $company_currency,
+            'default_list' => self::default_price_list_id(),
+            'default_currency' => $default_currency,
+        ]));
+        $cached = self::cache_get($key);
+        if (false !== $cached) {
+            return $cached;
+        }
+
+        global $wpdb;
+        $company_currency = $company_currency ?: $default_currency;
         $product_currency = strtoupper(trim((string) get_post_meta($product_id, '_obbp_currency', true)));
         $currency_ok = !$product_currency || !$company_currency || $product_currency === $company_currency;
         $price = (float) get_post_meta($product_id, '_obbp_price', true);
         $min_qty = (float) get_post_meta($product_id, '_obbp_min_order_qty', true);
         $step = (float) get_post_meta($product_id, '_obbp_qty_step', true);
         $lead = absint(get_post_meta($product_id, '_obbp_lead_time_days', true));
-        $list_id = absint($company['price_list_id'] ?? 0);
         $list_ids = [];
-        if ($list_id) {
-            $list_ids[] = $list_id;
+        if ($company_list) {
+            $list_ids[] = $company_list;
         }
-        $default_list_id = absint($wpdb->get_var($wpdb->prepare('SELECT id FROM %i WHERE is_default = 1 AND is_active = 1 AND deleted_at IS NULL AND (valid_from IS NULL OR valid_from <= %s) AND (valid_to IS NULL OR valid_to >= %s) ORDER BY id ASC LIMIT 1', self::table('price_lists'), current_time('Y-m-d'), current_time('Y-m-d'))));
+        $default_list_id = self::default_price_list_id();
         if ($default_list_id && !in_array($default_list_id, $list_ids, true)) {
             $list_ids[] = $default_list_id;
         }
@@ -263,7 +399,7 @@ final class OBBP_Repository
         if (!is_finite($step) || $step < 0) {
             $step = 1;
         }
-        return [
+        $result = [
             'price' => self::money($price),
             'min_qty' => self::quantity($min_qty ?: 1),
             'step' => self::quantity($step ?: 1),
@@ -271,6 +407,24 @@ final class OBBP_Repository
             'currency' => $product_currency ?: $company_currency,
             'currency_ok' => $currency_ok,
         ];
+        self::cache_set($key, $result, self::CACHE_TTL_STABLE);
+        return $result;
+    }
+
+    /**
+     * Cached id of the active default price list, used as the pricing fallback.
+     */
+    private static function default_price_list_id()
+    {
+        $key = 'default_price_list';
+        $cached = self::cache_get($key);
+        if (false !== $cached) {
+            return (int) $cached;
+        }
+        global $wpdb;
+        $id = (int) $wpdb->get_var($wpdb->prepare('SELECT id FROM %i WHERE is_default = 1 AND is_active = 1 AND deleted_at IS NULL AND (valid_from IS NULL OR valid_from <= %s) AND (valid_to IS NULL OR valid_to >= %s) ORDER BY id ASC LIMIT 1', self::table('price_lists'), current_time('Y-m-d'), current_time('Y-m-d')));
+        self::cache_set($key, $id, self::CACHE_TTL_STABLE);
+        return $id;
     }
 
     public static function products($company, $search = '', $paged = 1, $limit = 12)
@@ -360,9 +514,7 @@ final class OBBP_Repository
 
         $params[] = $limit;
 
-        // Single prepare
-        $prepared = $wpdb->prepare($sql, $params);
-        return $wpdb->get_results($prepared, ARRAY_A);
+        return $wpdb->get_results($wpdb->prepare($sql, $params), ARRAY_A); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prepared custom-table query
     }
 
     public static function rfqs_list($args = [])
@@ -408,9 +560,7 @@ final class OBBP_Repository
 
         $params[] = $limit;
 
-        // Single prepare
-        $prepared = $wpdb->prepare($sql, $params);
-        return $wpdb->get_results($prepared, ARRAY_A);
+        return $wpdb->get_results($wpdb->prepare($sql, $params), ARRAY_A); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prepared custom-table query
     }
 
     /**
@@ -440,8 +590,7 @@ final class OBBP_Repository
         ";
 
         // Single prepare
-        $prepared = $wpdb->prepare($sql, $params);
-        return $wpdb->get_col($prepared);
+        return $wpdb->get_col($wpdb->prepare($sql, $params)); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prepared custom-table query
     }
 
     /**
@@ -501,6 +650,7 @@ final class OBBP_Repository
             default:
                 return [];
         }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $sql is the output of $wpdb->prepare() in every branch above; one prepare() per entity.
         return $wpdb->get_results($sql, ARRAY_A);
     }
 
@@ -547,9 +697,7 @@ final class OBBP_Repository
 
         $params[] = $limit;
 
-        // Single prepare
-        $prepared = $wpdb->prepare($sql, $params);
-        return $wpdb->get_results($prepared, ARRAY_A);
+        return $wpdb->get_results($wpdb->prepare($sql, $params), ARRAY_A); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- prepared custom-table query
     }
 
     /**
@@ -565,6 +713,11 @@ final class OBBP_Repository
             'object_type', 'action', 'actor_type' => $column,
             default => 'object_type',
         };
+        $key = 'facets:' . $column;
+        $cached = self::cache_get($key);
+        if (false !== $cached) {
+            return $cached;
+        }
         $sql = $wpdb->prepare(
             'SELECT DISTINCT %i AS facet FROM %i WHERE %i != %s ORDER BY %i ASC',
             $column,
@@ -573,9 +726,57 @@ final class OBBP_Repository
             '',
             $column
         );
-        return $wpdb->get_col($sql);
+        $facets = $wpdb->get_col($sql);
+        self::cache_set($key, $facets, self::CACHE_TTL_COUNTS);
+        return $facets;
     }
     // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+    /**
+     * Short-lived summary counts for the admin dashboard.
+     *
+     * @return array Label => count. Labels carry the escape-safe text used directly
+     *               by the dashboard template.
+     */
+    public static function admin_counts()
+    {
+        global $wpdb;
+        $cached = self::cache_get('admin_counts');
+        if (is_array($cached)) {
+            return $cached;
+        }
+        $counts = [
+            __('Pending companies', 'obydullah-b2b-portal') => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status = 'pending' AND deleted_at IS NULL", self::table('companies'))),
+            __('RFQs awaiting quote', 'obydullah-b2b-portal') => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status IN ('submitted','under_review') AND deleted_at IS NULL", self::table('rfqs'))),
+            __('Quotes awaiting response', 'obydullah-b2b-portal') => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status IN ('sent','viewed') AND deleted_at IS NULL", self::table('quotes'))),
+            __('Open purchase orders', 'obydullah-b2b-portal') => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE status NOT IN ('completed','closed','cancelled') AND deleted_at IS NULL", self::table('purchase_orders'))),
+        ];
+        self::cache_set('admin_counts', $counts, self::CACHE_TTL_COUNTS);
+        return $counts;
+    }
+
+    /**
+     * Short-lived summary counts for one company's portal dashboard.
+     *
+     * @return array rfq/quote/order => count.
+     */
+    public static function portal_counts($company_id)
+    {
+        global $wpdb;
+        $company_id = absint($company_id);
+        $key = 'portal_counts:' . $company_id;
+        $cached = self::cache_get($key);
+        if (is_array($cached)) {
+            return $cached;
+        }
+        $counts = [
+            'rfq' => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE company_id = %d AND deleted_at IS NULL", self::table('rfqs'), $company_id)),
+            'quote' => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE company_id = %d AND deleted_at IS NULL", self::table('quotes'), $company_id)),
+            'order' => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE company_id = %d AND status != 'draft' AND deleted_at IS NULL", self::table('purchase_orders'), $company_id)),
+        ];
+        self::cache_set($key, $counts, self::CACHE_TTL_COUNTS);
+        return $counts;
+    }
 
     public static function log($company_id, $object_type, $object_id, $action, $message, $context = [], $severity = 'info')
     {
@@ -629,3 +830,4 @@ final class OBBP_Repository
         return $statuses[$type] ?? [];
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

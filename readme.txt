@@ -86,7 +86,7 @@ Payments, invoicing, accounting, inventory, credit scoring, tax calculation, Woo
 2. Click **Install Now**, then **Activate**.
 3. Activation creates the `wp_obbp_*` database tables, installs the plugin roles, and schedules the daily `obbp_expire_quotes` cron event.
 4. Open **B2B Portal → Settings** and set the default currency, default country, and the portal page — any page containing the `[obbp_portal]` shortcode.
-5. Add your first company and its primary contact, then approve the company. Approval provisions the portal login for that contact and emails them.
+5. Add your first company and its primary contact. Link that contact to an existing WordPress user (create one under Users → Add New; the plugin never creates accounts), then approve the company. Approval grants the linked user portal access and emails them.
 6. Add products under **B2B Portal → Catalog**, then set up price lists under **B2B Portal → Price Lists**.
 
 = Shortcodes =
@@ -137,7 +137,7 @@ No. It loads no remote fonts, scripts, or styles, makes no outbound HTTP request
 
 = Will deleting the plugin delete my data? =
 
-Not by default. Roles and capabilities are always removed. The custom tables, catalog products, settings, and any WordPress users the plugin created are only deleted if you enabled "Delete data on uninstall" in the settings first.
+Not by default. Roles and capabilities are always removed. The custom tables, catalog products, settings, and the plugin's user meta are only deleted if you enabled "Delete data on uninstall" in the settings first. The plugin never creates or deletes WordPress users.
 
 = Is CSV export safe to open in Excel or Google Sheets? =
 
@@ -155,7 +155,7 @@ Yes. The portal uses its own stylesheet and script, and the admin screens use th
 
 = 1.0.0 =
 
-* Company management with approval workflow, contacts, and automatic portal login provisioning.
+* Company management with approval workflow, contacts, and linking contacts to existing WordPress users for portal access.
 * Private product catalog with SKU, unit, price, currency, availability, minimum quantity, quantity step, and lead time.
 * Per-company price lists with validity windows, a default list, and currency-conflict handling.
 * RFQ lifecycle from draft through submission, with per-item quantities and notes.
