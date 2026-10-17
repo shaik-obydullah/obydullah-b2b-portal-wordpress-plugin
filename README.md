@@ -1,5 +1,12 @@
 # Obydullah B2B Portal
 
+![PHP](https://img.shields.io/badge/PHP-8.0-777BB4?logo=php&logoColor=white)
+![WordPress](https://img.shields.io/badge/WordPress-6.5-21759B?logo=wordpress&logoColor=white)
+![License](https://img.shields.io/badge/License-GPLv2-or-blue)
+![Version](https://img.shields.io/badge/Version-1.0.0-informational)
+
+[Download on WordPress.org](https://wordpress.org/plugins/obydullah-b2b-portal/)
+
 Customer-facing B2B RFQ, quotation, and purchase-order portal for WordPress. A supplier
 manages companies, a catalog, and price lists in wp-admin; approved company contacts log
 into a front-end portal, request quotes, and accept or reject quotations.
