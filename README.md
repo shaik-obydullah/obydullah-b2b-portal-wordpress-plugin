@@ -2,7 +2,7 @@
 
 ![PHP](https://img.shields.io/badge/PHP-8.0-777BB4?logo=php&logoColor=white)
 ![WordPress](https://img.shields.io/badge/WordPress-6.5-21759B?logo=wordpress&logoColor=white)
-![License](https://img.shields.io/badge/License-GPLv2-or-blue)
+![License](https://img.shields.io/badge/License-GPLv2-orange)
 ![Version](https://img.shields.io/badge/Version-1.0.0-informational)
 
 [Download on WordPress.org](https://wordpress.org/plugins/obydullah-b2b-portal/)
